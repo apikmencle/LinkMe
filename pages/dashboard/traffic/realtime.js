@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../../components/DashboardLayout';
-import TrafficFilterBar from '../../../components/TrafficFilterBar';
 import { fetchTrafficStats } from '../../../lib/trafficApi';
+import { countryFlagEmoji, countryName } from '../../../lib/countryUtils';
+import { DeviceIcon, BrowserIcon, LanguageIcon } from '../../../components/TrafficIcons';
 
 function timeAgo(isoDate) {
   const diff = Math.floor((Date.now() - new Date(isoDate + 'Z').getTime()) / 1000);
@@ -15,31 +16,22 @@ export default function RealTime() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [searchPath, setSearchPath] = useState('');
 
   useEffect(() => {
     load();
-    const interval = setInterval(() => load({ startDate, endDate, searchPath }), 30000);
+    const interval = setInterval(load, 30000);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function load(filters = {}) {
+  async function load() {
     setLoading(true);
     setError('');
     try {
-      setStats(await fetchTrafficStats(filters));
+      setStats(await fetchTrafficStats());
     } catch (e) {
       setError('Gagal memuat data. Cek koneksi ke Worker atau coba lagi.');
     }
     setLoading(false);
-  }
-
-  function handleReset() {
-    setStartDate(''); setEndDate(''); setSearchPath('');
-    load();
   }
 
   return (
@@ -47,17 +39,13 @@ export default function RealTime() {
       <div className="page-header page-header-row">
         <div>
           <h1>Real Time</h1>
-          <p>Log kunjungan detail, diperbarui otomatis setiap 30 detik.</p>
+          <p>Log kunjungan hari ini, diperbarui otomatis setiap 30 detik.</p>
         </div>
-        <span className="live-badge"><span className="live-dot" />Live</span>
+        <div className="header-actions">
+          <span className="live-badge"><span className="live-dot" />Live</span>
+          <button className="btn-ghost" onClick={load}>Muat Ulang</button>
+        </div>
       </div>
-
-      <TrafficFilterBar
-        startDate={startDate} endDate={endDate} searchPath={searchPath}
-        onStartDateChange={setStartDate} onEndDateChange={setEndDate} onSearchPathChange={setSearchPath}
-        onApply={(e) => { e.preventDefault(); load({ startDate, endDate, searchPath }); }}
-        onReset={handleReset}
-      />
 
       {error && <div className="auth-err">{error}</div>}
 
@@ -69,7 +57,7 @@ export default function RealTime() {
         {loading ? (
           <div className="empty-state">Memuat...</div>
         ) : !stats?.recent_logs?.length ? (
-          <div className="empty-state">Belum ada kunjungan tercatat.</div>
+          <div className="empty-state">Belum ada kunjungan tercatat hari ini.</div>
         ) : (
           <div className="traffic-log-list">
             {stats.recent_logs.map((log, i) => (
@@ -79,10 +67,13 @@ export default function RealTime() {
                   <span className="traffic-log-time">{timeAgo(log.created_at)}</span>
                 </div>
                 <div className="traffic-log-meta">
-                  <span>{log.city}, {log.country}</span>
-                  <span>{log.device}</span>
-                  <span>{log.browser}</span>
-                  <span>{log.lang}</span>
+                  <span className="meta-chip">
+                    <span className="country-flag">{countryFlagEmoji(log.country)}</span>
+                    {log.city}, {countryName(log.country)}
+                  </span>
+                  <span className="meta-chip"><DeviceIcon device={log.device} />{log.device}</span>
+                  <span className="meta-chip"><BrowserIcon browser={log.browser} />{log.browser}</span>
+                  <span className="meta-chip"><LanguageIcon />{log.lang}</span>
                 </div>
                 <div className="traffic-log-source">Source: <b>{log.ua}</b></div>
               </div>
