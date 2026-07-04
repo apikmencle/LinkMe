@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '../../../components/DashboardLayout';
 import TrafficFilterBar from '../../../components/TrafficFilterBar';
 import { fetchTrafficStats } from '../../../lib/trafficApi';
+import { countryFlagEmoji, countryName } from '../../../lib/countryUtils';
 
 export default function LinkInsight() {
   const [stats, setStats] = useState(null);
@@ -74,7 +75,10 @@ export default function LinkInsight() {
             <div className="simple-list">
               {stats.countries.map((c, i) => (
                 <div className="simple-list-row" key={i}>
-                  <span className="simple-list-label">{c.country || 'Unknown'}</span>
+                  <span className="simple-list-label country-label">
+                    <span className="country-flag">{countryFlagEmoji(c.country)}</span>
+                    {countryName(c.country)}
+                  </span>
                   <span className="simple-list-value">{c.total}</span>
                 </div>
               ))}
@@ -84,4 +88,5 @@ export default function LinkInsight() {
       </div>
     </DashboardLayout>
   );
-}
+            }
+            
