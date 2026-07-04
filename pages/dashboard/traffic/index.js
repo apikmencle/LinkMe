@@ -1,32 +1,23 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../../components/DashboardLayout';
-import TrafficFilterBar from '../../../components/TrafficFilterBar';
 import { fetchTrafficStats } from '../../../lib/trafficApi';
 
 export default function TrafficOverview() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [searchPath, setSearchPath] = useState('');
 
   useEffect(() => { load(); }, []);
 
-  async function load(filters = {}) {
+  async function load() {
     setLoading(true);
     setError('');
     try {
-      setStats(await fetchTrafficStats(filters));
+      setStats(await fetchTrafficStats());
     } catch (e) {
       setError('Gagal memuat data. Cek koneksi ke Worker atau coba lagi.');
     }
     setLoading(false);
-  }
-
-  function handleReset() {
-    setStartDate(''); setEndDate(''); setSearchPath('');
-    load();
   }
 
   const maxDaily = stats?.daily?.length ? Math.max(...stats.daily.map((d) => d.count), 1) : 1;
@@ -36,17 +27,10 @@ export default function TrafficOverview() {
       <div className="page-header page-header-row">
         <div>
           <h1>Ringkasan Traffic</h1>
-          <p>Total kunjungan dan tren harian blog kamu.</p>
+          <p>Total kunjungan hari ini dan tren harian blog kamu.</p>
         </div>
         <span className="live-badge"><span className="live-dot" />Live</span>
       </div>
-
-      <TrafficFilterBar
-        startDate={startDate} endDate={endDate} searchPath={searchPath}
-        onStartDateChange={setStartDate} onEndDateChange={setEndDate} onSearchPathChange={setSearchPath}
-        onApply={(e) => { e.preventDefault(); load({ startDate, endDate, searchPath }); }}
-        onReset={handleReset}
-      />
 
       {error && <div className="auth-err">{error}</div>}
 
@@ -66,7 +50,7 @@ export default function TrafficOverview() {
         {loading ? (
           <div className="empty-state">Memuat...</div>
         ) : !stats?.daily?.length ? (
-          <div className="empty-state">Belum ada data untuk rentang ini.</div>
+          <div className="empty-state">Belum ada data untuk hari ini.</div>
         ) : (
           <div className="rank-list">
             {stats.daily.map((d) => (
