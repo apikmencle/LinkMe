@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import DashboardLayout from '../components/DashboardLayout';
-import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabaseClient';
+import DashboardLayout from '../../components/DashboardLayout';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabaseClient';
 
 function genCode(len = 6) {
   const chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
