@@ -31,14 +31,42 @@ const ICONS = {
       <path d="M3 12h18" />
     </svg>
   ),
+  insight: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.35-4.35" />
+    </svg>
+  ),
+  realtime: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M2 12h4l2-7 4 14 3-9 2 5h5" />
+    </svg>
+  ),
 };
 
-export const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Ringkasan', icon: 'overview' },
-  { href: '/dashboard/links', label: 'Kelola Tautan', icon: 'links' },
-  { href: '/dashboard/analytics', label: 'Analitik', icon: 'analytics' },
-  { href: '/dashboard/traffic', label: 'Traffic Blog', icon: 'traffic' },
+const NAV_GROUPS = [
+  {
+    label: 'Menu',
+    items: [
+      { href: '/dashboard', label: 'Ringkasan', icon: 'overview' },
+      { href: '/dashboard/links', label: 'Kelola Tautan', icon: 'links' },
+      { href: '/dashboard/analytics', label: 'Analitik', icon: 'analytics' },
+    ],
+  },
+  {
+    label: 'Traffic Blog',
+    items: [
+      { href: '/dashboard/traffic', label: 'Ringkasan', icon: 'traffic' },
+      { href: '/dashboard/traffic/insight', label: 'Link Insight', icon: 'insight' },
+      { href: '/dashboard/traffic/realtime', label: 'Real Time', icon: 'realtime' },
+    ],
+  },
 ];
+
+// Dipakai Header.js untuk menentukan judul halaman aktif
+export const NAV_ITEMS = NAV_GROUPS.flatMap((g) =>
+  g.items.map((item) => ({ ...item, group: g.label }))
+);
 
 export default function Sidebar({ isOpen, onClose }) {
   const router = useRouter();
@@ -56,21 +84,26 @@ export default function Sidebar({ isOpen, onClose }) {
           <span className="sidebar-brand-name">LinkMe</span>
         </div>
 
-        <div className="sidebar-section-label">Menu</div>
-
-        <nav className="sidebar-nav">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onClose}
-              className={`sidebar-link ${router.pathname === item.href ? 'active' : ''}`}
-            >
-              <span className="sidebar-icon">{ICONS[item.icon]}</span>
-              {item.label}
-            </Link>
+        <div className="sidebar-scroll">
+          {NAV_GROUPS.map((group) => (
+            <div className="sidebar-group" key={group.label}>
+              <div className="sidebar-section-label">{group.label}</div>
+              <nav className="sidebar-nav">
+                {group.items.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onClose}
+                    className={`sidebar-link ${router.pathname === item.href ? 'active' : ''}`}
+                  >
+                    <span className="sidebar-icon">{ICONS[item.icon]}</span>
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
           ))}
-        </nav>
+        </div>
 
         <div className="sidebar-footer">LinkMe &copy; {new Date().getFullYear()}</div>
       </aside>
