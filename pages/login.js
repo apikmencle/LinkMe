@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
+import PasswordInput from '../components/PasswordInput';
 
 export default function Login() {
   const router = useRouter();
@@ -44,7 +45,12 @@ export default function Login() {
           </div>
           <div className="field">
             <label>Kata Sandi</label>
-            <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+            <PasswordInput
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
           </div>
           {err && <div className="auth-err">{err}</div>}
           <button className="btn-primary btn-block" disabled={loading}>
@@ -58,4 +64,5 @@ export default function Login() {
       </div>
     </div>
   );
-}
+            }
+
