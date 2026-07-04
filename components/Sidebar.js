@@ -26,7 +26,7 @@ const ICONS = {
   ),
 };
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
   { href: '/dashboard', label: 'Ringkasan', icon: 'overview' },
   { href: '/dashboard/links', label: 'Kelola Tautan', icon: 'links' },
   { href: '/dashboard/analytics', label: 'Analitik', icon: 'analytics' },
@@ -40,11 +40,15 @@ export default function Sidebar({ isOpen, onClose }) {
       {isOpen && <div className="sidebar-overlay" onClick={onClose} />}
       <aside className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-brand">
-          <span className="brand-bracket">⟨</span>
-          <span className="brand-dot" />
-          <span className="brand-bracket">⟩</span>
+          <span className="sidebar-logo">
+            <span className="brand-bracket">⟨</span>
+            <span className="brand-dot" />
+            <span className="brand-bracket">⟩</span>
+          </span>
           <span className="sidebar-brand-name">LinkMe</span>
         </div>
+
+        <div className="sidebar-section-label">Menu</div>
 
         <nav className="sidebar-nav">
           {NAV_ITEMS.map((item) => (
@@ -64,4 +68,5 @@ export default function Sidebar({ isOpen, onClose }) {
       </aside>
     </>
   );
-}
+    }
+    
