@@ -57,6 +57,13 @@ export default function Dashboard() {
     setFetching(false);
   }
 
+  async function notify(message) {
+    await supabase.from('notifications').insert({
+      user_id: session.user.id,
+      message,
+    });
+  }
+
   async function handleCreate(e) {
     e.preventDefault();
     setErr('');
@@ -99,14 +106,16 @@ export default function Dashboard() {
 
     setCreating(false);
     if (success) {
+      notify(`Tautan baru berhasil dibuat: /${code}`);
       setUrl('');
       setAlias('');
       fetchLinks();
     }
   }
 
-  async function handleDelete(id) {
+  async function handleDelete(id, code) {
     await supabase.from('links').delete().eq('id', id);
+    notify(`Tautan /${code} telah dihapus`);
     fetchLinks();
   }
 
@@ -190,7 +199,7 @@ export default function Dashboard() {
                     {copiedCode === l.code ? 'Tersalin' : 'Salin'}
                   </button>
                   <button className="icon-btn" onClick={() => handleVisit(l)}>Buka</button>
-                  <button className="icon-btn danger" onClick={() => handleDelete(l.id)}>Hapus</button>
+                  <button className="icon-btn danger" onClick={() => handleDelete(l.id, l.code)}>Hapus</button>
                 </div>
               </div>
             ))}
@@ -199,4 +208,5 @@ export default function Dashboard() {
       </div>
     </DashboardLayout>
   );
-}
+          }
+          
