@@ -13,8 +13,10 @@ export default function Header({ onMenuClick }) {
     router.push('/login');
   }
 
+  const username = session?.user?.user_metadata?.username;
   const email = session?.user?.email || '';
-  const initial = email.charAt(0).toUpperCase() || '?';
+  const displayName = username || email;
+  const initial = (username || email).charAt(0).toUpperCase() || '?';
 
   return (
     <header className="topbar">
@@ -30,7 +32,7 @@ export default function Header({ onMenuClick }) {
       </div>
       <div className="topbar-user" onClick={() => setOpen(!open)}>
         <div className="avatar">{initial}</div>
-        <span className="topbar-email">{email}</span>
+        <span className="topbar-email">{displayName}</span>
         {open && (
           <div className="user-menu">
             <button onClick={handleLogout}>Keluar</button>
@@ -40,4 +42,3 @@ export default function Header({ onMenuClick }) {
     </header>
   );
 }
-
