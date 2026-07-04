@@ -2,9 +2,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
+import PasswordInput from '../components/PasswordInput';
+
+function isValidUsername(str) {
+  return /^[a-zA-Z0-9_]{3,20}$/.test(str);
+}
 
 export default function Register() {
   const router = useRouter();
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,13 +21,21 @@ export default function Register() {
     e.preventDefault();
     setErr('');
 
+    if (!isValidUsername(username)) {
+      setErr('Username 3-20 karakter, hanya huruf, angka, dan garis bawah (_).');
+      return;
+    }
     if (password.length < 6) {
       setErr('Kata sandi minimal 6 karakter.');
       return;
     }
 
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { username } },
+    });
     setLoading(false);
 
     if (error) {
@@ -60,12 +74,27 @@ export default function Register() {
         ) : (
           <form onSubmit={handleSubmit}>
             <div className="field">
+              <label>Username</label>
+              <input
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="namamu"
+              />
+            </div>
+            <div className="field">
               <label>Email</label>
               <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="kamu@email.com" />
             </div>
             <div className="field">
               <label>Kata Sandi</label>
-              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Minimal 6 karakter" />
+              <PasswordInput
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Minimal 6 karakter"
+                required
+              />
             </div>
             {err && <div className="auth-err">{err}</div>}
             <button className="btn-primary btn-block" disabled={loading}>
@@ -80,4 +109,5 @@ export default function Register() {
       </div>
     </div>
   );
-}
+          }
+
