@@ -126,7 +126,7 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <div className="page-header">
-        <h1>Tautan Kamu</h1>
+        <h1>Kelola Tautan</h1>
         <p>Buat, kelola, dan pantau semua tautan pendek di satu tempat.</p>
       </div>
 
