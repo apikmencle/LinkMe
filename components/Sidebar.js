@@ -24,12 +24,20 @@ const ICONS = {
       <path d="M20 20v-7" />
     </svg>
   ),
+  traffic: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" />
+      <path d="M3 12h18" />
+    </svg>
+  ),
 };
 
 export const NAV_ITEMS = [
   { href: '/dashboard', label: 'Ringkasan', icon: 'overview' },
   { href: '/dashboard/links', label: 'Kelola Tautan', icon: 'links' },
   { href: '/dashboard/analytics', label: 'Analitik', icon: 'analytics' },
+  { href: '/dashboard/traffic', label: 'Traffic Blog', icon: 'traffic' },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
