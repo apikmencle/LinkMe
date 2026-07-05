@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import PasswordInput from '../components/PasswordInput';
+import Seo from '../components/Seo';
 
 function isValidUsername(str) {
   return /^[a-zA-Z0-9_]{3,20}$/.test(str);
@@ -54,6 +55,7 @@ export default function Register() {
 
   return (
     <div className="auth-page">
+      <Seo title="Daftar" description="Buat akun LinkMe gratis dan mulai pendekkan tautanmu dalam hitungan detik." />
       <div className="auth-card">
         <div className="brand-mark">
           <span className="brand-bracket">⟨</span>
@@ -109,5 +111,5 @@ export default function Register() {
       </div>
     </div>
   );
-          }
-
+    }
+          
