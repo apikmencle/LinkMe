@@ -55,20 +55,28 @@ const ICONS = {
       <path d="M12 17h.01" />
     </svg>
   ),
+  sites: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18" />
+      <path d="M12 3c2.5 2.7 4 6 4 9s-1.5 6.3-4 9c-2.5-2.7-4-6-4-9s1.5-6.3 4-9z" />
+    </svg>
+  ),
 };
 
 const NAV_GROUPS = [
   {
     label: 'Menu',
     items: [
-      { href: '/dashboard', label: 'Dashboard', icon: 'overview' },
+      { href: '/dashboard', label: 'Ringkasan', icon: 'overview' },
       { href: '/dashboard/links', label: 'Kelola Tautan', icon: 'links' },
-      { href: '/dashboard/analytics', label: 'Analytics', icon: 'analytics' },
+      { href: '/dashboard/analytics', label: 'Analitik', icon: 'analytics' },
     ],
   },
   {
     label: 'Traffic Blog',
     items: [
+      { href: '/dashboard/sites', label: 'Situs Saya', icon: 'sites' },
       { href: '/dashboard/traffic', label: 'Ringkasan', icon: 'traffic' },
       { href: '/dashboard/traffic/insight', label: 'Link Insight', icon: 'insight' },
       { href: '/dashboard/traffic/realtime', label: 'Real Time', icon: 'realtime' },
@@ -129,5 +137,5 @@ export default function Sidebar({ isOpen, onClose }) {
       </aside>
     </>
   );
-  }
+    }
     
