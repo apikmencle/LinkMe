@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../../components/DashboardLayout';
 import TrafficFilterBar from '../../../components/TrafficFilterBar';
+import SiteSelector from '../../../components/SiteSelector';
 import { fetchTrafficStats } from '../../../lib/trafficApi';
 import { countryFlagEmoji, countryName } from '../../../lib/countryUtils';
 import { formatPageLabel } from '../../../lib/pathUtils';
+import { useSites } from '../../../lib/useSites';
 
 export default function LinkInsight() {
+  const { sites, loading: sitesLoading, selectedSiteId, setSelectedSiteId } = useSites();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -13,15 +16,17 @@ export default function LinkInsight() {
   const [endDate, setEndDate] = useState('');
   const [searchPath, setSearchPath] = useState('');
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    if (selectedSiteId) load();
+  }, [selectedSiteId]);
 
   async function load(filters = {}) {
     setLoading(true);
     setError('');
     try {
-      setStats(await fetchTrafficStats(filters));
+      setStats(await fetchTrafficStats({ siteId: selectedSiteId, ...filters }));
     } catch (e) {
-      setError('Gagal memuat data. Cek koneksi ke Worker atau coba lagi.');
+      setError('Gagal memuat data. Coba lagi.');
     }
     setLoading(false);
   }
@@ -38,56 +43,62 @@ export default function LinkInsight() {
         <p>Halaman mana yang paling ramai, dan dari negara mana pengunjungnya.</p>
       </div>
 
-      <TrafficFilterBar
-        startDate={startDate} endDate={endDate} searchPath={searchPath}
-        onStartDateChange={setStartDate} onEndDateChange={setEndDate} onSearchPathChange={setSearchPath}
-        onApply={(e) => { e.preventDefault(); load({ startDate, endDate, searchPath }); }}
-        onReset={handleReset}
-      />
+      {!sitesLoading && <SiteSelector sites={sites} selectedSiteId={selectedSiteId} onChange={setSelectedSiteId} />}
 
-      {error && <div className="auth-err">{error}</div>}
+      {selectedSiteId && (
+        <>
+          <TrafficFilterBar
+            startDate={startDate} endDate={endDate} searchPath={searchPath}
+            onStartDateChange={setStartDate} onEndDateChange={setEndDate} onSearchPathChange={setSearchPath}
+            onApply={(e) => { e.preventDefault(); load({ startDate, endDate, searchPath }); }}
+            onReset={handleReset}
+          />
 
-      <div className="two-col">
-        <div className="card">
-          <div className="card-header"><h2>Halaman Teratas</h2></div>
-          {loading ? (
-            <div className="empty-state">Memuat...</div>
-          ) : !stats?.pages?.length ? (
-            <div className="empty-state">Belum ada data.</div>
-          ) : (
-            <div className="simple-list">
-              {stats.pages.map((p, i) => (
-                <div className="simple-list-row" key={i} title={p.path}>
-                  <span className="simple-list-label">{formatPageLabel(p.path)}</span>
-                  <span className="simple-list-value">{p.count}</span>
+          {error && <div className="auth-err">{error}</div>}
+
+          <div className="two-col">
+            <div className="card">
+              <div className="card-header"><h2>Halaman Teratas</h2></div>
+              {loading ? (
+                <div className="empty-state">Memuat...</div>
+              ) : !stats?.pages?.length ? (
+                <div className="empty-state">Belum ada data.</div>
+              ) : (
+                <div className="simple-list">
+                  {stats.pages.map((p, i) => (
+                    <div className="simple-list-row" key={i} title={p.path}>
+                      <span className="simple-list-label">{formatPageLabel(p.path)}</span>
+                      <span className="simple-list-value">{p.count}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
 
-        <div className="card">
-          <div className="card-header"><h2>Negara Teratas</h2></div>
-          {loading ? (
-            <div className="empty-state">Memuat...</div>
-          ) : !stats?.countries?.length ? (
-            <div className="empty-state">Belum ada data.</div>
-          ) : (
-            <div className="simple-list">
-              {stats.countries.map((c, i) => (
-                <div className="simple-list-row" key={i}>
-                  <span className="simple-list-label country-label">
-                    <span className="country-flag">{countryFlagEmoji(c.country)}</span>
-                    {countryName(c.country)}
-                  </span>
-                  <span className="simple-list-value">{c.total}</span>
+            <div className="card">
+              <div className="card-header"><h2>Negara Teratas</h2></div>
+              {loading ? (
+                <div className="empty-state">Memuat...</div>
+              ) : !stats?.countries?.length ? (
+                <div className="empty-state">Belum ada data.</div>
+              ) : (
+                <div className="simple-list">
+                  {stats.countries.map((c, i) => (
+                    <div className="simple-list-row" key={i}>
+                      <span className="simple-list-label country-label">
+                        <span className="country-flag">{countryFlagEmoji(c.country)}</span>
+                        {countryName(c.country)}
+                      </span>
+                      <span className="simple-list-value">{c.total}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        </>
+      )}
     </DashboardLayout>
   );
-            }
-            
+                }
+                
