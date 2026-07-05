@@ -150,6 +150,20 @@ button{ font-family:inherit; }
   color:var(--text-muted);
   cursor:not-allowed;
 }
+.field select{
+  width:100%;
+  font-family:'Inter', sans-serif;
+  font-size:14.5px;
+  padding:11px 13px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--bg);
+  color:var(--text);
+  outline:none;
+  cursor:pointer;
+  transition:border-color .15s ease;
+}
+.field select:focus{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
 .auth-success-msg{
   background:var(--accent-soft);
   color:var(--accent-dark);
