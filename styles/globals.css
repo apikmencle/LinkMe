@@ -145,6 +145,52 @@ button{ font-family:inherit; }
   transition:border-color .15s ease;
 }
 .field input:focus{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+.field input:disabled{
+  background:var(--panel);
+  color:var(--text-muted);
+  cursor:not-allowed;
+}
+.auth-success-msg{
+  background:var(--accent-soft);
+  color:var(--accent-dark);
+  font-size:13px;
+  padding:10px 12px;
+  border-radius:8px;
+  margin:12px 0;
+}
+
+/* ---------- FAQ ---------- */
+.faq-list{ display:flex; flex-direction:column; }
+.faq-item{ border-bottom:1px solid var(--border); }
+.faq-item:last-child{ border-bottom:none; }
+.faq-question{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  background:none;
+  border:none;
+  text-align:left;
+  padding:16px 4px;
+  font-size:14.5px;
+  font-weight:600;
+  color:var(--ink);
+  cursor:pointer;
+}
+.faq-chevron{
+  flex-shrink:0;
+  color:var(--text-muted);
+  transition:transform .2s ease;
+  display:flex;
+}
+.faq-chevron.open{ transform:rotate(180deg); color:var(--accent-dark); }
+.faq-answer{
+  padding:0 4px 18px;
+  font-size:13.5px;
+  color:var(--text-muted);
+  line-height:1.6;
+}
 
 .alias-input{
   display:flex;
