@@ -683,17 +683,24 @@ button{ font-family:inherit; }
 }
 .traffic-log-top{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
   gap:10px;
   margin-bottom:8px;
 }
 .traffic-log-path{
   font-family:'JetBrains Mono', monospace;
-  font-size:12.5px;
+  font-size:13px;
   color:var(--accent-dark);
   font-weight:600;
   word-break:break-all;
+}
+.traffic-log-fullpath{
+  font-family:'JetBrains Mono', monospace;
+  font-size:10.5px;
+  color:var(--text-muted);
+  word-break:break-all;
+  margin-top:2px;
 }
 .traffic-log-time{ font-size:11px; color:var(--text-muted); white-space:nowrap; }
 .traffic-log-meta{
