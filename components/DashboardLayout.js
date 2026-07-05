@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import Sidebar from './Sidebar';
+import Sidebar, { NAV_ITEMS } from './Sidebar';
 import Header from './Header';
+import Seo from './Seo';
 import { useAuth } from '../context/AuthContext';
 
 export default function DashboardLayout({ children }) {
@@ -19,12 +20,23 @@ export default function DashboardLayout({ children }) {
     setSidebarOpen(false);
   }, [router.pathname]);
 
+  const activeItem = NAV_ITEMS.find((item) => item.href === router.pathname);
+  const seoTitle = activeItem
+    ? (activeItem.group === 'Menu' ? activeItem.label : `${activeItem.group} - ${activeItem.label}`)
+    : 'Dasbor';
+
   if (loading || !session) {
-    return <div className="page-loading">Memuat...</div>;
+    return (
+      <>
+        <Seo title="Memuat" noindex />
+        <div className="page-loading">Memuat...</div>
+      </>
+    );
   }
 
   return (
     <div className="dashboard-shell">
+      <Seo title={seoTitle} noindex />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="dashboard-main">
         <Header onMenuClick={() => setSidebarOpen(true)} />
