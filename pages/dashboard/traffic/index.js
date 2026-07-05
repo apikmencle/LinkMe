@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../../components/DashboardLayout';
 import { fetchTrafficStats, fetchRealtimeStats } from '../../../lib/trafficApi';
+import { formatPageLabel } from '../../../lib/pathUtils';
 
 export default function TrafficOverview() {
   const [stats, setStats] = useState(null);
@@ -63,8 +64,8 @@ export default function TrafficOverview() {
               <div className="empty-state">Belum ada tampilan 30 menit terakhir.</div>
             ) : (
               realtime.views_by_page.map((p, i) => (
-                <div className="realtime-row" key={i}>
-                  <span>{p.path}</span>
+                <div className="realtime-row" key={i} title={p.path}>
+                  <span>{formatPageLabel(p.path)}</span>
                   <span>{p.views}</span>
                 </div>
               ))
@@ -85,8 +86,8 @@ export default function TrafficOverview() {
               <div className="empty-state">Belum ada pengguna aktif 30 menit terakhir.</div>
             ) : (
               realtime.users_by_page.map((p, i) => (
-                <div className="realtime-row" key={i}>
-                  <span>{p.path}</span>
+                <div className="realtime-row" key={i} title={p.path}>
+                  <span>{formatPageLabel(p.path)}</span>
                   <span>{p.users}</span>
                 </div>
               ))
@@ -132,5 +133,5 @@ export default function TrafficOverview() {
       </div>
     </DashboardLayout>
   );
-              }
-            
+        }
+              
