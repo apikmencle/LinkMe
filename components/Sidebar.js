@@ -50,7 +50,7 @@ const NAV_GROUPS = [
     items: [
       { href: '/dashboard', label: 'Ringkasan', icon: 'overview' },
       { href: '/dashboard/links', label: 'Kelola Tautan', icon: 'links' },
-      { href: '/dashboard/analytics', label: 'Analitik', icon: 'analytics' },
+      { href: '/dashboard/analytics', label: 'Analytics', icon: 'analytics' },
     ],
   },
   {
