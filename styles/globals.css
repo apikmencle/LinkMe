@@ -661,6 +661,7 @@ button{ font-family:inherit; }
   grid-template-columns:1fr 1fr;
   gap:20px;
 }
+.two-col .card{ margin-bottom:0; }
 
 .simple-list{ display:flex; flex-direction:column; gap:2px; }
 .simple-list-row{
