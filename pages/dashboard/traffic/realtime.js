@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '../../../components/DashboardLayout';
 import { fetchTrafficStats } from '../../../lib/trafficApi';
 import { countryFlagEmoji, countryName } from '../../../lib/countryUtils';
+import { formatPageLabel } from '../../../lib/pathUtils';
 import { DeviceIcon, BrowserIcon, LanguageIcon } from '../../../components/TrafficIcons';
 
 function timeAgo(isoDate) {
@@ -63,7 +64,10 @@ export default function RealTime() {
             {stats.recent_logs.map((log, i) => (
               <div className="traffic-log-item" key={i}>
                 <div className="traffic-log-top">
-                  <span className="traffic-log-path">{log.path}</span>
+                  <div>
+                    <div className="traffic-log-path">{formatPageLabel(log.path)}</div>
+                    <div className="traffic-log-fullpath">{log.path}</div>
+                  </div>
                   <span className="traffic-log-time">{timeAgo(log.created_at)}</span>
                 </div>
                 <div className="traffic-log-meta">
@@ -83,4 +87,4 @@ export default function RealTime() {
       </div>
     </DashboardLayout>
   );
-}
+        }
