@@ -717,6 +717,47 @@ button{ font-family:inherit; }
 .country-label{ display:inline-flex; align-items:center; gap:8px; }
 
 .header-actions{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
+
+/* ---------- Realtime cards (Ringkasan) ---------- */
+.realtime-card{ display:flex; flex-direction:column; }
+.realtime-header{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--text-muted);
+  margin-bottom:12px;
+}
+.realtime-dot{
+  width:8px; height:8px;
+  border-radius:50%;
+  background:#4285F4;
+  flex-shrink:0;
+}
+.realtime-title{ font-size:16px; margin-bottom:4px; }
+.realtime-caption{ font-size:12.5px; color:var(--text-muted); margin:0 0 8px; }
+.realtime-number{
+  font-family:'Space Grotesk', sans-serif;
+  font-size:38px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:16px;
+}
+.realtime-divider{ height:1px; background:var(--border); margin-bottom:12px; }
+.realtime-list{ display:flex; flex-direction:column; gap:2px; }
+.realtime-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 2px;
+  font-size:13px;
+  color:var(--text);
+  border-bottom:1px solid var(--border);
+}
+.realtime-row:last-child{ border-bottom:none; }
+.realtime-row span:first-child{ word-break:break-all; padding-right:10px; }
+.realtime-row span:last-child{ font-weight:600; color:var(--ink); flex-shrink:0; }
 .traffic-log-source{
   font-size:12px;
   color:var(--text-muted);
@@ -778,5 +819,4 @@ button{ font-family:inherit; }
   .link-clicks b{ font-size:15px; }
   .link-actions{ width:100%; }
   .link-actions .icon-btn{ flex:1; }
-  }
-  
+}
