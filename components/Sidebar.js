@@ -42,6 +42,19 @@ const ICONS = {
       <path d="M2 12h4l2-7 4 14 3-9 2 5h5" />
     </svg>
   ),
+  settings: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  ),
+  faq: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 4" />
+      <path d="M12 17h.01" />
+    </svg>
+  ),
 };
 
 const NAV_GROUPS = [
@@ -59,6 +72,13 @@ const NAV_GROUPS = [
       { href: '/dashboard/traffic', label: 'Ringkasan', icon: 'traffic' },
       { href: '/dashboard/traffic/insight', label: 'Link Insight', icon: 'insight' },
       { href: '/dashboard/traffic/realtime', label: 'Real Time', icon: 'realtime' },
+    ],
+  },
+  {
+    label: 'Lainnya',
+    items: [
+      { href: '/dashboard/settings', label: 'Pengaturan', icon: 'settings' },
+      { href: '/dashboard/faq', label: 'FAQ', icon: 'faq' },
     ],
   },
 ];
@@ -109,5 +129,5 @@ export default function Sidebar({ isOpen, onClose }) {
       </aside>
     </>
   );
-    }
+  }
     
