@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import PasswordInput from '../components/PasswordInput';
+import Seo from '../components/Seo';
 
 export default function Login() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function Login() {
 
   return (
     <div className="auth-page">
+      <Seo title="Masuk" description="Masuk ke akun LinkMe kamu untuk mengelola tautan dan melihat analitik." />
       <div className="auth-card">
         <div className="brand-mark">
           <span className="brand-bracket">⟨</span>
@@ -64,5 +66,4 @@ export default function Login() {
       </div>
     </div>
   );
-            }
-
+}
