@@ -3,6 +3,7 @@ import DashboardLayout from '../../../components/DashboardLayout';
 import TrafficFilterBar from '../../../components/TrafficFilterBar';
 import { fetchTrafficStats } from '../../../lib/trafficApi';
 import { countryFlagEmoji, countryName } from '../../../lib/countryUtils';
+import { formatPageLabel } from '../../../lib/pathUtils';
 
 export default function LinkInsight() {
   const [stats, setStats] = useState(null);
@@ -56,8 +57,8 @@ export default function LinkInsight() {
           ) : (
             <div className="simple-list">
               {stats.pages.map((p, i) => (
-                <div className="simple-list-row" key={i}>
-                  <span className="simple-list-label">{p.path}</span>
+                <div className="simple-list-row" key={i} title={p.path}>
+                  <span className="simple-list-label">{formatPageLabel(p.path)}</span>
                   <span className="simple-list-value">{p.count}</span>
                 </div>
               ))}
