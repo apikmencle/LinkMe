@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../../components/DashboardLayout';
-import { fetchTrafficStats } from '../../../lib/trafficApi';
+import { fetchTrafficStats, fetchRealtimeStats } from '../../../lib/trafficApi';
 
 export default function TrafficOverview() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => { load(); }, []);
+  const [realtime, setRealtime] = useState(null);
+  const [realtimeLoading, setRealtimeLoading] = useState(true);
+
+  useEffect(() => {
+    load();
+    loadRealtime();
+    const interval = setInterval(loadRealtime, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   async function load() {
     setLoading(true);
@@ -20,6 +28,15 @@ export default function TrafficOverview() {
     setLoading(false);
   }
 
+  async function loadRealtime() {
+    try {
+      setRealtime(await fetchRealtimeStats());
+    } catch (e) {
+      // diamkan saja kalau realtime gagal, data harian tetap tampil
+    }
+    setRealtimeLoading(false);
+  }
+
   const maxDaily = stats?.daily?.length ? Math.max(...stats.daily.map((d) => d.count), 1) : 1;
 
   return (
@@ -27,20 +44,66 @@ export default function TrafficOverview() {
       <div className="page-header page-header-row">
         <div>
           <h1>Ringkasan Traffic</h1>
-          <p>Total kunjungan hari ini dan tren harian blog kamu.</p>
+          <p>Aktivitas real-time dan tren harian blog kamu.</p>
         </div>
         <span className="live-badge"><span className="live-dot" />Live</span>
+      </div>
+
+      <div className="two-col">
+        <div className="card realtime-card">
+          <div className="realtime-header"><span className="realtime-dot" />Real-Time</div>
+          <h3 className="realtime-title">Tampilan dari Judul Halaman</h3>
+          <p className="realtime-caption">Tampilan dalam 30 menit terakhir</p>
+          <div className="realtime-number">{realtimeLoading ? '—' : (realtime?.total_views ?? 0)}</div>
+          <div className="realtime-divider" />
+          <div className="realtime-list">
+            {realtimeLoading ? (
+              <div className="empty-state">Memuat...</div>
+            ) : !realtime?.views_by_page?.length ? (
+              <div className="empty-state">Belum ada tampilan 30 menit terakhir.</div>
+            ) : (
+              realtime.views_by_page.map((p, i) => (
+                <div className="realtime-row" key={i}>
+                  <span>{p.path}</span>
+                  <span>{p.views}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="card realtime-card">
+          <div className="realtime-header"><span className="realtime-dot" />Real-Time</div>
+          <h3 className="realtime-title">Pengguna Aktif dari Judul Halaman</h3>
+          <p className="realtime-caption">Pengguna aktif dalam 30 menit terakhir</p>
+          <div className="realtime-number">{realtimeLoading ? '—' : (realtime?.active_users ?? 0)}</div>
+          <div className="realtime-divider" />
+          <div className="realtime-list">
+            {realtimeLoading ? (
+              <div className="empty-state">Memuat...</div>
+            ) : !realtime?.users_by_page?.length ? (
+              <div className="empty-state">Belum ada pengguna aktif 30 menit terakhir.</div>
+            ) : (
+              realtime.users_by_page.map((p, i) => (
+                <div className="realtime-row" key={i}>
+                  <span>{p.path}</span>
+                  <span>{p.users}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </div>
 
       {error && <div className="auth-err">{error}</div>}
 
       <div className="stat-grid">
         <div className="stat-card">
-          <span className="stat-label">Unique Visitors</span>
+          <span className="stat-label">Unique Visitors (Hari Ini)</span>
           <span className="stat-value">{loading ? '—' : (stats?.total_visits ?? 0)}</span>
         </div>
         <div className="stat-card">
-          <span className="stat-label">Total Klik</span>
+          <span className="stat-label">Total Klik (Hari Ini)</span>
           <span className="stat-value">{loading ? '—' : (stats?.total_clicks ?? 0)}</span>
         </div>
       </div>
@@ -69,4 +132,5 @@ export default function TrafficOverview() {
       </div>
     </DashboardLayout>
   );
-}
+              }
+            
