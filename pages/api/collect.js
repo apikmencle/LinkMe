@@ -46,19 +46,6 @@ function hashIp(ip) {
   return crypto.createHash('sha256').update(`${salt}:${ip}`).digest('hex');
 }
 
-// Rentang "hari ini" menurut WIB (Asia/Jakarta), dikonversi ke UTC untuk
-// query ke Postgres (yang menyimpan created_at dalam UTC).
-function todayRangeUtcFromJakarta() {
-  const now = new Date();
-  const jakartaNow = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-  const y = jakartaNow.getUTCFullYear();
-  const m = jakartaNow.getUTCMonth();
-  const d = jakartaNow.getUTCDate();
-  const startUtc = new Date(Date.UTC(y, m, d, -7, 0, 0));
-  const endUtc = new Date(Date.UTC(y, m, d + 1, -7, 0, 0));
-  return { startUtc: startUtc.toISOString(), endUtc: endUtc.toISOString() };
-}
-
 export default async function handler(req, res) {
   setCors(res);
 
@@ -110,36 +97,30 @@ export default async function handler(req, res) {
     const trackPath = path || '/';
     const ipHash = hashIp(ip);
 
-    const { startUtc, endUtc } = todayRangeUtcFromJakarta();
-
-    const { data: existing } = await supabaseAdmin
-      .from('traffic_events')
-      .select('id')
-      .eq('site_id', site.id)
-      .eq('ip_hash', ipHash)
-      .eq('path', trackPath)
-      .gte('created_at', startUtc)
-      .lt('created_at', endUtc)
-      .limit(1)
-      .maybeSingle();
-
-    if (!existing) {
-      await supabaseAdmin.from('traffic_events').insert({
-        site_id: site.id,
-        path: trackPath,
-        referrer_source: source,
-        country,
-        city,
-        device,
-        browser,
-        lang,
-        ip_hash: ipHash,
-      });
-    }
+    // Catatan: sengaja TIDAK ADA pengecekan "sudah pernah tercatat hari ini"
+    // di sini. Sebelumnya ada dedup per ip_hash+path+hari (dibawa dari logika
+    // worker lama), tapi ini berbahaya di Indonesia karena banyak provider
+    // seluler memakai CGNAT - ratusan pengunjung berbeda bisa berbagi satu
+    // IP publik. Kalau dedup dilakukan saat insert, pengunjung asli kedua dst
+    // yang kebetulan berbagi IP dengan pengunjung sebelumnya akan HILANG
+    // (event-nya tidak pernah tersimpan). Sekarang setiap kunjungan selalu
+    // disimpan sebagai baris baru; "unique visitor" dihitung belakangan lewat
+    // COUNT(DISTINCT ip_hash) di get_traffic_stats(), bukan dengan membuang
+    // data mentahnya.
+    await supabaseAdmin.from('traffic_events').insert({
+      site_id: site.id,
+      path: trackPath,
+      referrer_source: source,
+      country,
+      city,
+      device,
+      browser,
+      lang,
+      ip_hash: ipHash,
+    });
 
     return res.status(200).json({ ok: true });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-  }
-
+}
