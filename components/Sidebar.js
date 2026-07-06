@@ -68,22 +68,22 @@ const NAV_GROUPS = [
   {
     label: 'Menu',
     items: [
-      { href: '/dashboard', label: 'Ringkasan', icon: 'overview' },
+      { href: '/dashboard', label: 'Beranda', icon: 'overview' },
       { href: '/dashboard/links', label: 'Kelola Tautan', icon: 'links' },
-      { href: '/dashboard/analytics', label: 'Analitik', icon: 'analytics' },
+      { href: '/dashboard/analytics', label: 'Analitik Tautan', icon: 'analytics' },
     ],
   },
   {
-    label: 'Traffic Blog',
+    label: 'Trafik',
     items: [
       { href: '/dashboard/sites', label: 'Situs Saya', icon: 'sites' },
-      { href: '/dashboard/traffic', label: 'Ringkasan', icon: 'traffic' },
-      { href: '/dashboard/traffic/insight', label: 'Link Insight', icon: 'insight' },
-      { href: '/dashboard/traffic/realtime', label: 'Real Time', icon: 'realtime' },
+      { href: '/dashboard/traffic', label: 'Ringkasan Traffic', icon: 'traffic' },
+      { href: '/dashboard/traffic/insight', label: 'Insight Halaman', icon: 'insight' },
+      { href: '/dashboard/traffic/realtime', label: 'Real-Time', icon: 'realtime' },
     ],
   },
   {
-    label: 'Lainnya',
+    label: 'Akun',
     items: [
       { href: '/dashboard/settings', label: 'Pengaturan', icon: 'settings' },
       { href: '/dashboard/faq', label: 'FAQ', icon: 'faq' },
@@ -91,7 +91,8 @@ const NAV_GROUPS = [
   },
 ];
 
-// Dipakai Header.js untuk menentukan judul halaman aktif
+// Dipakai Header.js untuk menentukan judul halaman aktif. Judul selalu cuma
+// nama halaman itu sendiri - tanpa prefix nama kelompok menu.
 export const NAV_ITEMS = NAV_GROUPS.flatMap((g) =>
   g.items.map((item) => ({ ...item, group: g.label }))
 );
@@ -113,9 +114,9 @@ export default function Sidebar({ isOpen, onClose }) {
         </div>
 
         <div className="sidebar-scroll">
-          {NAV_GROUPS.map((group) => (
+          {NAV_GROUPS.map((group, i) => (
             <div className="sidebar-group" key={group.label}>
-              <div className="sidebar-section-label">{group.label}</div>
+              {i > 0 && <div className="sidebar-divider" role="separator" aria-label={group.label} />}
               <nav className="sidebar-nav">
                 {group.items.map((item) => (
                   <Link
