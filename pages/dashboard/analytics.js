@@ -29,7 +29,7 @@ export default function Analytics() {
   return (
     <DashboardLayout>
       <div className="page-header">
-        <h1>Analytics</h1>
+        <h1>Analitik Tautan</h1>
         <p>Tautan mana yang paling banyak diklik.</p>
       </div>
 
