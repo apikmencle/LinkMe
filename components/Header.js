@@ -50,9 +50,7 @@ export default function Header({ onMenuClick }) {
   const userRef = useRef(null);
 
   const activeItem = NAV_ITEMS.find((item) => item.href === router.pathname);
-  const pageTitle = activeItem
-    ? (activeItem.group === 'Menu' ? activeItem.label : `${activeItem.group} · ${activeItem.label}`)
-    : 'Dasbor';
+  const pageTitle = activeItem ? activeItem.label : 'Dasbor';
 
   useEffect(() => {
     if (session) fetchUnreadCount();
@@ -210,4 +208,4 @@ export default function Header({ onMenuClick }) {
     </header>
   );
     }
-        
+    
