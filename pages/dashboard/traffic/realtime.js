@@ -43,7 +43,7 @@ export default function RealTime() {
     <DashboardLayout>
       <div className="page-header page-header-row">
         <div>
-          <h1>Real Time</h1>
+          <h1>Real-Time</h1>
           <p>Log kunjungan hari ini, diperbarui otomatis setiap 30 detik.</p>
         </div>
         <div className="header-actions">
@@ -97,5 +97,4 @@ export default function RealTime() {
       )}
     </DashboardLayout>
   );
-                        }
-  
+}
