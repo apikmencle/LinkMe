@@ -39,7 +39,7 @@ export default function LinkInsight() {
   return (
     <DashboardLayout>
       <div className="page-header">
-        <h1>Link Insight</h1>
+        <h1>Insight Halaman</h1>
         <p>Halaman mana yang paling ramai, dan dari negara mana pengunjungnya.</p>
       </div>
 
