@@ -117,6 +117,7 @@ export default function Sidebar({ isOpen, onClose }) {
           {NAV_GROUPS.map((group, i) => (
             <div className="sidebar-group" key={group.label}>
               {i > 0 && <div className="sidebar-divider" role="separator" aria-label={group.label} />}
+              <div className="sidebar-section-label">{group.label}</div>
               <nav className="sidebar-nav">
                 {group.items.map((item) => (
                   <Link
