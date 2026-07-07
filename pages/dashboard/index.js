@@ -41,7 +41,7 @@ export default function Overview() {
   return (
     <DashboardLayout>
       <div className="page-header">
-        <h1>Dashboard LinkMe</h1>
+        <h1>Beranda</h1>
         <p>Sekilas performa semua tautanmu.</p>
       </div>
 
