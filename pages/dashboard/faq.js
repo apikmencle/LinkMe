@@ -19,8 +19,8 @@ const FAQ_ITEMS = [
     a: 'Tidak. Setiap akun hanya bisa melihat dan mengelola tautannya sendiri di menu "Kelola Tautan". Tautan pendeknya sendiri tetap bisa diakses publik begitu dibagikan, tapi daftar & statistiknya bersifat pribadi.',
   },
   {
-    q: 'Apa bedanya menu "Analitik" dengan "Traffic Blog"?',
-    a: '"Analitik" menampilkan performa tautan-tautan yang kamu buat di LinkMe. Sementara "Traffic Blog" menampilkan data kunjungan dari blog terpisah yang kamu hubungkan lewat Cloudflare Worker — dua sumber data yang berbeda, ditampilkan dalam satu dasbor.',
+    q: 'Apa bedanya menu "Analitik Tautan" dengan "Ringkasan Traffic"?',
+    a: '"Analitik Tautan" menampilkan performa tautan-tautan pendek yang kamu buat di LinkMe. Sementara "Ringkasan Traffic" menampilkan data kunjungan dari situs/blog yang kamu daftarkan lewat menu "Situs Saya" — dua sumber data yang berbeda, ditampilkan dalam satu dasbor.',
   },
   {
     q: 'Kenapa saya mendapat notifikasi milestone klik?',
@@ -31,8 +31,8 @@ const FAQ_ITEMS = [
     a: 'Buka menu "Pengaturan". Di sana kamu bisa memperbarui username dan mengganti kata sandi akunmu kapan saja.',
   },
   {
-    q: 'Apakah data "Real Time" di Traffic Blog benar-benar langsung?',
-    a: 'Data pada halaman Real Time diperbarui otomatis setiap 30 detik, dan menampilkan aktivitas dalam 30 menit terakhir — sehingga cukup dekat dengan waktu nyata untuk memantau kunjungan yang sedang berlangsung.',
+    q: 'Apakah data "Real-Time" di Ringkasan Traffic benar-benar langsung?',
+    a: 'Data pada halaman Real-Time diperbarui otomatis setiap 30 detik, dan menampilkan aktivitas dalam 30 menit terakhir — sehingga cukup dekat dengan waktu nyata untuk memantau kunjungan yang sedang berlangsung.',
   },
 ];
 
@@ -70,3 +70,4 @@ export default function FAQ() {
     </DashboardLayout>
   );
 }
+
