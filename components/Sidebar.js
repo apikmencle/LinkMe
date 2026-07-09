@@ -66,20 +66,19 @@ const ICONS = {
 
 const NAV_GROUPS = [
   {
-    label: 'Menu',
+    label: 'Trafik',
     items: [
-      { href: '/dashboard', label: 'Beranda', icon: 'overview' },
-      { href: '/dashboard/links', label: 'Kelola Tautan', icon: 'links' },
-      { href: '/dashboard/analytics', label: 'Analitik Tautan', icon: 'analytics' },
+      { href: '/dashboard', label: 'Ringkasan Traffic', icon: 'traffic' },
+      { href: '/dashboard/sites', label: 'Situs Saya', icon: 'sites' },
+      { href: '/dashboard/traffic/insight', label: 'Insight Halaman', icon: 'insight' },
+      { href: '/dashboard/traffic/realtime', label: 'Real-Time', icon: 'realtime' },
     ],
   },
   {
-    label: 'Trafik',
+    label: 'Tautan',
     items: [
-      { href: '/dashboard/sites', label: 'Situs Saya', icon: 'sites' },
-      { href: '/dashboard/traffic', label: 'Ringkasan Traffic', icon: 'traffic' },
-      { href: '/dashboard/traffic/insight', label: 'Insight Halaman', icon: 'insight' },
-      { href: '/dashboard/traffic/realtime', label: 'Real-Time', icon: 'realtime' },
+      { href: '/dashboard/links', label: 'Kelola Tautan', icon: 'links' },
+      { href: '/dashboard/analytics', label: 'Analitik Tautan', icon: 'analytics' },
     ],
   },
   {
