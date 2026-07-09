@@ -139,6 +139,25 @@ export default function Dashboard() {
         <p>Buat, kelola, dan pantau semua tautan pendek di satu tempat.</p>
       </div>
 
+      <div className="stat-grid">
+        <div className="stat-card">
+          <span className="stat-label">Total Tautan</span>
+          <span className="stat-value">{fetching ? '—' : links.length}</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-label">Total Klik</span>
+          <span className="stat-value">{fetching ? '—' : links.reduce((sum, l) => sum + l.clicks, 0)}</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-label">Rata-rata Klik / Tautan</span>
+          <span className="stat-value">
+            {fetching || !links.length
+              ? '—'
+              : Math.round((links.reduce((sum, l) => sum + l.clicks, 0) / links.length) * 10) / 10}
+          </span>
+        </div>
+      </div>
+
       <div className="card create-card">
         <form onSubmit={handleCreate} className="create-form">
           <div className="field">
