@@ -62,13 +62,21 @@ const ICONS = {
       <path d="M12 3c2.5 2.7 4 6 4 9s-1.5 6.3-4 9c-2.5-2.7-4-6-4-9s1.5-6.3 4-9z" />
     </svg>
   ),
+  dashboard: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="3" width="7" height="9" rx="1.5" />
+      <rect x="14" y="3" width="7" height="5" rx="1.5" />
+      <rect x="14" y="12" width="7" height="9" rx="1.5" />
+      <rect x="3" y="16" width="7" height="5" rx="1.5" />
+    </svg>
+  ),
 };
 
 const NAV_GROUPS = [
   {
     label: 'Trafik',
     items: [
-      { href: '/dashboard', label: 'Ringkasan Traffic', icon: 'traffic' },
+      { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
       { href: '/dashboard/sites', label: 'Situs Saya', icon: 'sites' },
       { href: '/dashboard/traffic/insight', label: 'Insight Halaman', icon: 'insight' },
       { href: '/dashboard/traffic/realtime', label: 'Real-Time', icon: 'realtime' },
