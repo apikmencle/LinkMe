@@ -6,17 +6,26 @@ import Seo from '../components/Seo';
 
 const FEATURES = [
   {
-    title: 'Kelola Tautan',
-    desc: 'Pendekkan URL panjang jadi tautan ringkas, dengan opsi kode kustom sesuai keinginanmu.',
+    title: 'Analisis Traffic',
+    desc: 'Pantau kunjungan blog atau landing page kamu secara real-time, lengkap dengan tren harian dan ringkasan visitor.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M9 12h6" /><path d="M10 6H6a5 5 0 0 0 0 10h4" /><path d="M14 6h4a5 5 0 0 1 0 10h-4" />
+        <circle cx="12" cy="12" r="9" /><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" /><path d="M3 12h18" />
       </svg>
     ),
   },
   {
-    title: 'Analitik Lengkap',
-    desc: 'Pantau performa tiap tautan: jumlah klik, ranking, dan tren dalam satu dasbor.',
+    title: 'Real-Time',
+    desc: 'Lihat siapa yang sedang membuka halamanmu detik ini juga — diperbarui otomatis tiap 30 detik.',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Insight Halaman',
+    desc: 'Cari tahu halaman mana yang paling ramai, dan dari negara mana pengunjungmu berasal.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M4 20V10" /><path d="M12 20V4" /><path d="M20 20v-7" />
@@ -24,20 +33,11 @@ const FEATURES = [
     ),
   },
   {
-    title: 'Notifikasi Otomatis',
-    desc: 'Dapat kabar setiap tautanmu mencapai milestone klik tertentu, tanpa perlu cek manual.',
+    title: 'Kelola Tautan',
+    desc: 'Sebagai pelengkap: pendekkan URL panjang jadi tautan ringkas, dengan opsi kode kustom.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
-      </svg>
-    ),
-  },
-  {
-    title: 'Traffic Blog',
-    desc: 'Hubungkan data kunjungan blog eksternal kamu dan pantau lewat dasbor yang sama, real-time.',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <circle cx="12" cy="12" r="9" /><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" /><path d="M3 12h18" />
+        <path d="M9 12h6" /><path d="M10 6H6a5 5 0 0 0 0 10h4" /><path d="M14 6h4a5 5 0 0 1 0 10h-4" />
       </svg>
     ),
   },
@@ -71,12 +71,12 @@ export default function Home() {
 
       <section className="landing-hero">
         <div className="compress-demo">
-          <span className="compress-long">https://contoh.com/artikel/yang-sangat-panjang-sekali-dan-susah-diingat</span>
-          <span className="compress-arrow">→</span>
-          <span className="compress-short">linkme.app/x7Qw2</span>
+          <span className="live-badge"><span className="live-dot" />Live</span>
+          <span className="compress-arrow">•</span>
+          <span className="compress-short">128 pengunjung aktif sekarang</span>
         </div>
-        <h1>Tautan panjang, dibereskan.</h1>
-        <p>LinkMe memendekkan URL kamu, mencatat setiap klik, dan menyimpannya rapi di satu dasbor — lengkap dengan analitik dan integrasi traffic blog.</p>
+        <h1>Tahu persis siapa yang mengunjungi blogmu.</h1>
+        <p>LinkMe menganalisis traffic blog atau landing page kamu secara real-time — tren harian, halaman terpopuler, asal pengunjung, semua dalam satu dasbor. Butuh pendekkan tautan juga? Itu tinggal fitur pelengkap.</p>
         <div className="landing-cta">
           <Link href="/register" className="btn-primary btn-lg">Mulai Gratis</Link>
           <Link href="/login" className="btn-ghost btn-lg">Sudah punya akun</Link>
@@ -111,4 +111,4 @@ export default function Home() {
     </div>
   );
       }
-      
+    
