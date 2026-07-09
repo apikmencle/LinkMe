@@ -1,9 +1,9 @@
 import Head from 'next/head';
 
 export default function Seo({ title, description, noindex }) {
-  const fullTitle = title ? `${title} · LinkMe` : 'LinkMe — Pemendek Tautan Modern';
+  const fullTitle = title ? `${title} · LinkMe` : 'LinkMe — Analisis Traffic Blog & Landing Page';
   const desc = description
-    || 'LinkMe memendekkan tautan panjang, mencatat setiap klik, dan menyajikan analitik lengkap dalam satu dasbor.';
+    || 'LinkMe menganalisis traffic blog atau landing page kamu secara real-time, lengkap dengan pemendek tautan sebagai fitur pelengkap.';
 
   return (
     <Head>
@@ -19,4 +19,5 @@ export default function Seo({ title, description, noindex }) {
       {noindex && <meta name="robots" content="noindex, nofollow" />}
     </Head>
   );
-}
+      }
+  
