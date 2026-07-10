@@ -4,6 +4,7 @@ import Sidebar, { NAV_ITEMS } from './Sidebar';
 import Header from './Header';
 import Seo from './Seo';
 import { useAuth } from '../context/AuthContext';
+import { SitesProvider } from '../context/SitesContext';
 
 export default function DashboardLayout({ children }) {
   const { session, loading } = useAuth();
@@ -21,9 +22,7 @@ export default function DashboardLayout({ children }) {
   }, [router.pathname]);
 
   const activeItem = NAV_ITEMS.find((item) => item.href === router.pathname);
-  const seoTitle = activeItem
-    ? (activeItem.group === 'Menu' ? activeItem.label : `${activeItem.group} - ${activeItem.label}`)
-    : 'Dasbor';
+  const seoTitle = activeItem ? `${activeItem.label} Â· LinkMe` : 'Dasbor Â· LinkMe';
 
   if (loading || !session) {
     return (
@@ -35,13 +34,15 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="dashboard-shell">
-      <Seo title={seoTitle} noindex />
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="dashboard-main">
-        <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="dashboard-content">{children}</main>
+    <SitesProvider>
+      <div className="dashboard-shell">
+        <Seo title={seoTitle} noindex />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="dashboard-main">
+          <Header onMenuClick={() => setSidebarOpen(true)} />
+          <main className="dashboard-content">{children}</main>
+        </div>
       </div>
-    </div>
+    </SitesProvider>
   );
 }
