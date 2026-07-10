@@ -9,28 +9,53 @@ function toDateStr(d) {
   return d.toISOString().slice(0, 10);
 }
 
-function buildAreaPath(daily, width, height, padding) {
-  if (!daily.length) return { line: '', area: '' };
-  const max = Math.max(...daily.map((d) => d.count), 1);
-  const innerW = width - padding * 2;
-  const innerH = height - padding * 2;
+// Membulatkan nilai maksimum grafik ke angka "rapi" (mis. 137 -> 150,
+// 1450 -> 1500) supaya label sumbu Y enak dibaca, mirip kebanyakan
+// dashboard analytics.
+function niceMax(value) {
+  if (value <= 0) return 4;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+  const steps = [1, 2, 2.5, 5, 10];
+  for (const step of steps) {
+    const candidate = step * magnitude;
+    if (candidate >= value) return candidate;
+  }
+  return 10 * magnitude;
+}
+
+function buildChart(daily, width, height, pad) {
+  if (!daily || !daily.length) return null;
+
+  const rawMax = Math.max(...daily.map((d) => d.count), 0);
+  const max = niceMax(rawMax || 1);
+  const gridLines = 4;
+
+  const innerW = width - pad.left - pad.right;
+  const innerH = height - pad.top - pad.bottom;
   const stepX = daily.length > 1 ? innerW / (daily.length - 1) : 0;
 
   const points = daily.map((d, i) => {
-    const x = padding + stepX * i;
-    const y = padding + innerH - (d.count / max) * innerH;
+    const x = pad.left + stepX * i;
+    const y = pad.top + innerH - (d.count / max) * innerH;
     return [x, y];
   });
 
   const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-  const area = `${line} L${points[points.length - 1][0].toFixed(1)},${(height - padding).toFixed(1)} L${points[0][0].toFixed(1)},${(height - padding).toFixed(1)} Z`;
+  const area = `${line} L${points[points.length - 1][0].toFixed(1)},${(height - pad.bottom).toFixed(1)} L${points[0][0].toFixed(1)},${(height - pad.bottom).toFixed(1)} Z`;
 
-  return { line, area, points };
+  const yLabels = Array.from({ length: gridLines + 1 }, (_, i) => {
+    const value = Math.round((max / gridLines) * (gridLines - i));
+    const y = pad.top + (innerH / gridLines) * i;
+    return { value, y };
+  });
+
+  return { line, area, points, yLabels, pad, width, height };
 }
 
 export default function DashboardHome() {
   const { sites, loading: sitesLoading, selectedSiteId, setSelectedSiteId } = useSites();
   const [stats, setStats] = useState(null);
+  const [allTime, setAllTime] = useState(null);
   const [trend, setTrend] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -51,7 +76,13 @@ export default function DashboardHome() {
     setLoading(true);
     setError('');
     try {
-      setStats(await fetchTrafficStats({ siteId: selectedSiteId }));
+      const today = toDateStr(new Date());
+      const [todayStats, allTimeStats] = await Promise.all([
+        fetchTrafficStats({ siteId: selectedSiteId }),
+        fetchTrafficStats({ siteId: selectedSiteId, startDate: '2000-01-01', endDate: today }),
+      ]);
+      setStats(todayStats);
+      setAllTime(allTimeStats);
     } catch (e) {
       setError('Gagal memuat data. Coba lagi.');
     }
@@ -83,7 +114,9 @@ export default function DashboardHome() {
     setRealtimeLoading(false);
   }
 
-  const chart = trend?.daily?.length ? buildAreaPath(trend.daily, 640, 220, 24) : null;
+  const chart = trend?.daily?.length
+    ? buildChart(trend.daily, 640, 240, { top: 16, right: 12, bottom: 8, left: 40 })
+    : null;
 
   return (
     <DashboardLayout>
@@ -104,68 +137,90 @@ export default function DashboardHome() {
           <div className="summary-grid">
             <div className="summary-card">
               <div className="summary-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="9" />
                   <path d="M3 12h18" />
                   <path d="M12 3c2.5 2.7 4 6 4 9s-1.5 6.3-4 9c-2.5-2.7-4-6-4-9s1.5-6.3 4-9z" />
                 </svg>
               </div>
               <span className="summary-label">Situs Terpantau</span>
-              <span className="summary-value">{sitesLoading ? '—' : sites.length}</span>
+              <span className="summary-value">{sitesLoading ? 'â€”' : sites.length}</span>
               <span className="summary-caption">Situs aktif terdaftar</span>
             </div>
 
             <div className="summary-card">
               <div className="summary-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 3v3M12 18v3M3 12h3M18 12h3M6.3 6.3l2 2M15.7 15.7l2 2M17.7 6.3l-2 2M8.3 15.7l-2 2" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>
               </div>
-              <span className="summary-label">Unique Visitors</span>
-              <span className="summary-value">{loading ? '—' : (stats?.total_visits ?? 0)}</span>
-              <span className="summary-caption">Hari ini</span>
+              <span className="summary-label">Unique Visitors (Sepanjang Waktu)</span>
+              <span className="summary-value">{loading ? 'â€”' : (allTime?.total_visits ?? 0).toLocaleString('id-ID')}</span>
+              <span className="summary-delta">
+                {!loading && <>+{(stats?.total_visits ?? 0).toLocaleString('id-ID')} Hari Ini</>}
+              </span>
             </div>
 
             <div className="summary-card">
               <div className="summary-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 20V10" /><path d="M12 20V4" /><path d="M20 20v-7" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M5 3l14 8-6 2-2 6-6-16z" fill="currentColor" stroke="none" />
                 </svg>
               </div>
-              <span className="summary-label">Total Klik</span>
-              <span className="summary-value">{loading ? '—' : (stats?.total_clicks ?? 0)}</span>
-              <span className="summary-caption">Hari ini</span>
+              <span className="summary-label">Total Klik (Sepanjang Waktu)</span>
+              <span className="summary-value">{loading ? 'â€”' : (allTime?.total_clicks ?? 0).toLocaleString('id-ID')}</span>
+              <span className="summary-delta">
+                {!loading && <>+{(stats?.total_clicks ?? 0).toLocaleString('id-ID')} Hari Ini</>}
+              </span>
             </div>
           </div>
 
           <div className="card">
             <div className="card-header">
-              <h2>Tren Kunjungan</h2>
-              <span className="muted">14 Hari Terakhir</span>
+              <h2>Tren Pertumbuhan Traffic</h2>
+              <span className="range-badge">14 Hari Terakhir</span>
             </div>
             {!chart ? (
               <div className="empty-state">Belum ada data untuk ditampilkan.</div>
             ) : (
-              <svg className="trend-chart" viewBox="0 0 640 220" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.28" />
-                    <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path d={chart.area} fill="url(#trendFill)" stroke="none" />
-                <path d={chart.line} fill="none" stroke="var(--accent-dark)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-                {chart.points.map((p, i) => (
-                  <circle key={i} cx={p[0]} cy={p[1]} r="3" fill="var(--bg)" stroke="var(--accent-dark)" strokeWidth="2" />
-                ))}
-              </svg>
-            )}
-            {chart && (
-              <div className="trend-chart-labels">
-                <span>{trend.daily[0].date}</span>
-                <span>{trend.daily[trend.daily.length - 1].date}</span>
-              </div>
+              <>
+                <svg className="trend-chart" viewBox={`0 0 ${chart.width} ${chart.height}`} preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.28" />
+                      <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+
+                  {chart.yLabels.map((g, i) => (
+                    <line
+                      key={i}
+                      x1={chart.pad.left}
+                      x2={chart.width - chart.pad.right}
+                      y1={g.y}
+                      y2={g.y}
+                      stroke="var(--border)"
+                      strokeWidth="1"
+                    />
+                  ))}
+                  {chart.yLabels.map((g, i) => (
+                    <text key={i} x={chart.pad.left - 10} y={g.y + 4} textAnchor="end" className="trend-axis-label">
+                      {g.value}
+                    </text>
+                  ))}
+
+                  <path d={chart.area} fill="url(#trendFill)" stroke="none" />
+                  <path d={chart.line} fill="none" stroke="var(--accent-dark)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+                  {chart.points.map((p, i) => (
+                    <circle key={i} cx={p[0]} cy={p[1]} r="3.5" fill="var(--bg)" stroke="var(--accent-dark)" strokeWidth="2" />
+                  ))}
+                </svg>
+                <div className="trend-chart-labels">
+                  <span>{trend.daily[0].date}</span>
+                  <span>{trend.daily[trend.daily.length - 1].date}</span>
+                </div>
+              </>
             )}
           </div>
 
@@ -174,7 +229,7 @@ export default function DashboardHome() {
               <div className="realtime-header"><span className="realtime-dot" />Real-Time</div>
               <h3 className="realtime-title">Tampilan dari Judul Halaman</h3>
               <p className="realtime-caption">Tampilan dalam 30 menit terakhir</p>
-              <div className="realtime-number">{realtimeLoading ? '—' : (realtime?.total_views ?? 0)}</div>
+              <div className="realtime-number">{realtimeLoading ? 'â€”' : (realtime?.total_views ?? 0)}</div>
               <div className="realtime-divider" />
               <div className="realtime-list">
                 {realtimeLoading ? (
@@ -196,7 +251,7 @@ export default function DashboardHome() {
               <div className="realtime-header"><span className="realtime-dot" />Real-Time</div>
               <h3 className="realtime-title">Pengguna Aktif dari Judul Halaman</h3>
               <p className="realtime-caption">Pengguna aktif dalam 30 menit terakhir</p>
-              <div className="realtime-number">{realtimeLoading ? '—' : (realtime?.active_users ?? 0)}</div>
+              <div className="realtime-number">{realtimeLoading ? 'â€”' : (realtime?.active_users ?? 0)}</div>
               <div className="realtime-divider" />
               <div className="realtime-list">
                 {realtimeLoading ? (
@@ -219,4 +274,3 @@ export default function DashboardHome() {
     </DashboardLayout>
   );
         }
-        
