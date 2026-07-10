@@ -503,6 +503,53 @@ button{ font-family:inherit; }
 }
 
 .topbar-user{ position:relative; display:flex; }
+
+.site-switcher{ position:relative; display:flex; }
+.site-switcher-trigger{
+  display:flex; align-items:center; gap:7px;
+  height:36px;
+  padding:0 12px;
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);
+  cursor:pointer;
+  max-width:170px;
+}
+.site-switcher-trigger:hover{ background:var(--panel); }
+.site-switcher-trigger svg:first-child{ color:var(--accent-dark); flex-shrink:0; }
+.site-switcher-name{
+  font-size:13.5px; font-weight:600;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.site-switcher-chevron{ flex-shrink:0; color:var(--text-muted); }
+
+.site-switcher-menu{
+  position:absolute; top:44px; right:0;
+  background:var(--bg); border:1px solid var(--border); border-radius:16px;
+  box-shadow:0 12px 32px rgba(12,14,27,0.14);
+  min-width:220px; max-width:280px; overflow:hidden; z-index:20;
+  padding:6px;
+}
+.site-switcher-menu-label{
+  font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+  color:var(--text-muted); padding:8px 10px 4px;
+}
+.site-switcher-item{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  width:100%; text-align:left; padding:10px; border-radius:9px;
+  background:none; border:none; font-size:13.5px; color:var(--text);
+  cursor:pointer;
+}
+.site-switcher-item:hover{ background:var(--panel); }
+.site-switcher-item.active{ color:var(--accent-dark); font-weight:700; }
+.site-switcher-item.active svg{ color:var(--accent-dark); flex-shrink:0; }
+.site-switcher-manage{
+  display:block; padding:10px; margin-top:2px;
+  font-size:13px; font-weight:600; color:var(--accent-dark); border-radius:9px;
+}
+.site-switcher-manage:hover{ background:var(--panel); text-decoration:none; }
+
 .topbar-user-trigger{
   display:flex; align-items:center; gap:10px;
   cursor:pointer;
@@ -1147,6 +1194,13 @@ button{ font-family:inherit; }
   .dashboard-shell{ flex-direction:column; }
 
   .hamburger-btn{ display:flex; }
+  .topbar{ padding:0 16px; gap:8px; }
+  .topbar-title{ max-width:96px; }
+  .topbar-right{ gap:6px; }
+  .topbar-email{ display:none; }
+  .topbar-user-trigger{ padding:6px; }
+  .site-switcher-trigger{ max-width:112px; padding:0 8px; }
+  .site-switcher-name{ max-width:64px; }
 
   .sidebar{
     position:fixed;
@@ -1186,4 +1240,4 @@ button{ font-family:inherit; }
   .link-clicks b{ font-size:15px; }
   .link-actions{ width:100%; }
   .link-actions .icon-btn{ flex:1; }
-}
+                }
