@@ -9,6 +9,14 @@ function toDateStr(d) {
   return d.toISOString().slice(0, 10);
 }
 
+// "2026-07-03" -> "3 Jul"
+function formatChartDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(`${dateStr}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+}
+
 // Membulatkan nilai maksimum grafik ke angka "rapi" (mis. 137 -> 150,
 // 1450 -> 1500) supaya label sumbu Y enak dibaca, mirip kebanyakan
 // dashboard analytics.
@@ -62,6 +70,7 @@ export default function DashboardHome() {
 
   const [realtime, setRealtime] = useState(null);
   const [realtimeLoading, setRealtimeLoading] = useState(true);
+  const [activePoint, setActivePoint] = useState(null);
 
   useEffect(() => {
     if (!selectedSiteId) return;
@@ -117,6 +126,18 @@ export default function DashboardHome() {
   const chart = trend?.daily?.length
     ? buildChart(trend.daily, 640, 240, { top: 16, right: 12, bottom: 8, left: 40 })
     : null;
+
+  useEffect(() => {
+    if (!trend?.daily?.length) {
+      setActivePoint(null);
+      return;
+    }
+    let peakIndex = 0;
+    trend.daily.forEach((d, i) => {
+      if (d.count > trend.daily[peakIndex].count) peakIndex = i;
+    });
+    setActivePoint(peakIndex);
+  }, [trend]);
 
   return (
     <DashboardLayout>
@@ -185,40 +206,107 @@ export default function DashboardHome() {
               <div className="empty-state">Belum ada data untuk ditampilkan.</div>
             ) : (
               <>
-                <svg className="trend-chart" viewBox={`0 0 ${chart.width} ${chart.height}`} preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.28" />
-                      <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
+                <div className="trend-chart-wrap">
+                  <svg className="trend-chart" viewBox={`0 0 ${chart.width} ${chart.height}`} preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.28" />
+                        <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
 
-                  {chart.yLabels.map((g, i) => (
-                    <line
-                      key={i}
-                      x1={chart.pad.left}
-                      x2={chart.width - chart.pad.right}
-                      y1={g.y}
-                      y2={g.y}
-                      stroke="var(--border)"
-                      strokeWidth="1"
-                    />
-                  ))}
-                  {chart.yLabels.map((g, i) => (
-                    <text key={i} x={chart.pad.left - 10} y={g.y + 4} textAnchor="end" className="trend-axis-label">
-                      {g.value}
-                    </text>
-                  ))}
+                    {chart.yLabels.map((g, i) => (
+                      <line
+                        key={i}
+                        x1={chart.pad.left}
+                        x2={chart.width - chart.pad.right}
+                        y1={g.y}
+                        y2={g.y}
+                        stroke="var(--border)"
+                        strokeWidth="1"
+                      />
+                    ))}
+                    {chart.yLabels.map((g, i) => (
+                      <text key={i} x={chart.pad.left - 10} y={g.y + 4} textAnchor="end" className="trend-axis-label">
+                        {g.value}
+                      </text>
+                    ))}
 
-                  <path d={chart.area} fill="url(#trendFill)" stroke="none" />
-                  <path d={chart.line} fill="none" stroke="var(--accent-dark)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-                  {chart.points.map((p, i) => (
-                    <circle key={i} cx={p[0]} cy={p[1]} r="3.5" fill="var(--bg)" stroke="var(--accent-dark)" strokeWidth="2" />
-                  ))}
-                </svg>
+                    {activePoint != null && chart.points[activePoint] && (
+                      <line
+                        x1={chart.points[activePoint][0]}
+                        x2={chart.points[activePoint][0]}
+                        y1={chart.pad.top}
+                        y2={chart.height - chart.pad.bottom}
+                        stroke="var(--accent-dark)"
+                        strokeWidth="1"
+                        strokeDasharray="3 3"
+                        opacity="0.5"
+                      />
+                    )}
+
+                    <path d={chart.area} fill="url(#trendFill)" stroke="none" />
+                    <path d={chart.line} fill="none" stroke="var(--accent-dark)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+
+                    {chart.points.map((p, i) => (
+                      <circle
+                        key={i}
+                        cx={p[0]}
+                        cy={p[1]}
+                        r={activePoint === i ? 5 : 3.5}
+                        fill={activePoint === i ? 'var(--accent-dark)' : 'var(--bg)'}
+                        stroke="var(--accent-dark)"
+                        strokeWidth="2"
+                      />
+                    ))}
+                    {/* Target sentuh/klik lebih besar dari titik yang terlihat, supaya gampang di-tap di HP */}
+                    {chart.points.map((p, i) => (
+                      <circle
+                        key={`hit-${i}`}
+                        cx={p[0]}
+                        cy={p[1]}
+                        r="14"
+                        fill="transparent"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => setActivePoint(i)}
+                      />
+                    ))}
+                  </svg>
+
+                  {activePoint != null && chart.points[activePoint] && (
+                    <div
+                      className={
+                        'trend-tooltip ' +
+                        (activePoint / (trend.daily.length - 1) < 0.22
+                          ? 'align-start'
+                          : activePoint / (trend.daily.length - 1) > 0.78
+                          ? 'align-end'
+                          : 'align-center')
+                      }
+                      style={{
+                        left: `${(chart.points[activePoint][0] / chart.width) * 100}%`,
+                        top: `${(chart.points[activePoint][1] / chart.height) * 100}%`,
+                      }}
+                    >
+                      <div className="trend-tooltip-date">{formatChartDate(trend.daily[activePoint].date)}</div>
+                      <div className="trend-tooltip-row">
+                        <span className="trend-tooltip-swatch" />
+                        Klik: {trend.daily[activePoint].count.toLocaleString('id-ID')}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="trend-chart-labels">
-                  <span>{trend.daily[0].date}</span>
-                  <span>{trend.daily[trend.daily.length - 1].date}</span>
+                  {trend.daily.map((d, i) => (
+                    <span
+                      key={i}
+                      className={activePoint === i ? 'active' : ''}
+                      onClick={() => setActivePoint(i)}
+                    >
+                      {formatChartDate(d.date)}
+                    </span>
+                  ))}
                 </div>
               </>
             )}
