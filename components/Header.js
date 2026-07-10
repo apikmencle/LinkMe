@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
+import { useSitesContext } from '../context/SitesContext';
 import { NAV_ITEMS } from './Sidebar';
 
 function timeAgo(ts) {
@@ -41,16 +42,20 @@ function NotifIcon({ message }) {
 export default function Header({ onMenuClick }) {
   const router = useRouter();
   const { session } = useAuth();
+  const { sites, loading: sitesLoading, selectedSiteId, setSelectedSiteId } = useSitesContext();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [siteMenuOpen, setSiteMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const notifRef = useRef(null);
   const userRef = useRef(null);
+  const siteRef = useRef(null);
 
   const activeItem = NAV_ITEMS.find((item) => item.href === router.pathname);
   const pageTitle = activeItem ? activeItem.label : 'Dasbor';
+  const selectedSite = sites.find((s) => s.id === selectedSiteId);
 
   useEffect(() => {
     if (session) fetchUnreadCount();
@@ -60,6 +65,7 @@ export default function Header({ onMenuClick }) {
     function handleClickOutside(e) {
       if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
       if (userRef.current && !userRef.current.contains(e.target)) setUserMenuOpen(false);
+      if (siteRef.current && !siteRef.current.contains(e.target)) setSiteMenuOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -86,12 +92,21 @@ export default function Header({ onMenuClick }) {
     const next = !notifOpen;
     setNotifOpen(next);
     setUserMenuOpen(false);
+    setSiteMenuOpen(false);
     if (next) fetchNotifications();
+  }
+
+  function toggleSiteMenu() {
+    const next = !siteMenuOpen;
+    setSiteMenuOpen(next);
+    setNotifOpen(false);
+    setUserMenuOpen(false);
   }
 
   function toggleUserMenu() {
     setUserMenuOpen(!userMenuOpen);
     setNotifOpen(false);
+    setSiteMenuOpen(false);
   }
 
   async function markOneRead(id) {
@@ -132,6 +147,49 @@ export default function Header({ onMenuClick }) {
       </div>
 
       <div className="topbar-right">
+        {sites.length > 0 && (
+          <div className="site-switcher" ref={siteRef}>
+            <button className="site-switcher-trigger" onClick={toggleSiteMenu}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M3 12h18" />
+                <path d="M12 3c2.5 2.7 4 6 4 9s-1.5 6.3-4 9c-2.5-2.7-4-6-4-9s1.5-6.3 4-9z" />
+              </svg>
+              <span className="site-switcher-name">{sitesLoading ? '...' : (selectedSite?.name || 'Pilih Situs')}</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="site-switcher-chevron">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            {siteMenuOpen && (
+              <div className="site-switcher-menu">
+                <div className="site-switcher-menu-label">Situs</div>
+                {sites.map((s) => (
+                  <button
+                    key={s.id}
+                    className={`site-switcher-item ${s.id === selectedSiteId ? 'active' : ''}`}
+                    onClick={() => {
+                      setSelectedSiteId(s.id);
+                      setSiteMenuOpen(false);
+                    }}
+                  >
+                    {s.name}
+                    {s.id === selectedSiteId && (
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+                <div className="user-menu-divider" />
+                <Link href="/dashboard/sites" className="site-switcher-manage" onClick={() => setSiteMenuOpen(false)}>
+                  Kelola Situs
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="notif-wrap" ref={notifRef}>
           <button className="notif-btn" onClick={toggleNotif} aria-label="Notifikasi">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -207,5 +265,4 @@ export default function Header({ onMenuClick }) {
       </div>
     </header>
   );
-    }
-    
+}
