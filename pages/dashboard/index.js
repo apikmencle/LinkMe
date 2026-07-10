@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
-import SiteSelector from '../../components/SiteSelector';
 import { fetchTrafficStats, fetchRealtimeStats } from '../../lib/trafficApi';
 import { formatPageLabel } from '../../lib/pathUtils';
-import { useSites } from '../../lib/useSites';
+import { useSitesContext } from '../../context/SitesContext';
 
 function toDateStr(d) {
   return d.toISOString().slice(0, 10);
@@ -61,7 +60,7 @@ function buildChart(daily, width, height, pad) {
 }
 
 export default function DashboardHome() {
-  const { sites, loading: sitesLoading, selectedSiteId, setSelectedSiteId } = useSites();
+  const { sites, loading: sitesLoading, selectedSiteId } = useSitesContext();
   const [stats, setStats] = useState(null);
   const [allTime, setAllTime] = useState(null);
   const [trend, setTrend] = useState(null);
@@ -149,7 +148,15 @@ export default function DashboardHome() {
         <span className="live-badge"><span className="live-dot" />Live</span>
       </div>
 
-      {!sitesLoading && <SiteSelector sites={sites} selectedSiteId={selectedSiteId} onChange={setSelectedSiteId} />}
+      {!sitesLoading && sites.length === 0 && (
+        <div className="card">
+          <div className="empty-state">
+            Kamu belum punya situs terdaftar.{' '}
+            <a href="/dashboard/sites">Tambah situs pertama</a> lalu pasang
+            snippet-nya di blog/landing page kamu untuk mulai melihat data traffic.
+          </div>
+        </div>
+      )}
 
       {selectedSiteId && (
         <>
