@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../../components/DashboardLayout';
-import SiteSelector from '../../../components/SiteSelector';
 import { fetchRealtimeLogs } from '../../../lib/trafficApi';
 import { countryFlagEmoji, countryName } from '../../../lib/countryUtils';
 import { formatPageLabel } from '../../../lib/pathUtils';
 import { DeviceIcon, BrowserIcon, LanguageIcon } from '../../../components/TrafficIcons';
-import { useSites } from '../../../lib/useSites';
+import { useSitesContext } from '../../../context/SitesContext';
 
 function timeAgo(isoDate) {
   const diff = Math.floor((Date.now() - new Date(isoDate).getTime()) / 1000);
@@ -16,7 +15,7 @@ function timeAgo(isoDate) {
 }
 
 export default function RealTime() {
-  const { sites, loading: sitesLoading, selectedSiteId, setSelectedSiteId } = useSites();
+  const { sites, loading: sitesLoading, selectedSiteId } = useSitesContext();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -52,7 +51,15 @@ export default function RealTime() {
         </div>
       </div>
 
-      {!sitesLoading && <SiteSelector sites={sites} selectedSiteId={selectedSiteId} onChange={setSelectedSiteId} />}
+      {!sitesLoading && sites.length === 0 && (
+        <div className="card">
+          <div className="empty-state">
+            Kamu belum punya situs terdaftar.{' '}
+            <a href="/dashboard/sites">Tambah situs pertama</a> lalu pasang
+            snippet-nya di blog/landing page kamu untuk mulai melihat data traffic.
+          </div>
+        </div>
+      )}
 
       {selectedSiteId && (
         <>
