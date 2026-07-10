@@ -1,12 +1,31 @@
 (function () {
   try {
-    var currentScript = document.currentScript;
-    var siteKey = currentScript ? currentScript.getAttribute('data-site') : null;
+    // document.currentScript tidak bisa diandalkan kalau script ini
+    // di-defer/dieksekusi-ulang oleh optimizer pihak ketiga (mis. Cloudflare
+    // Rocket Loader, lazy-load plugin, dsb) - di kondisi itu currentScript
+    // jadi null. Jadi kita cari sendiri elemen <script> yang src-nya
+    // mengarah ke file ini, sebagai fallback yang lebih tahan banting.
+    var thisScript = document.currentScript;
+
+    if (!thisScript) {
+      var scripts = document.getElementsByTagName('script');
+      for (var i = 0; i < scripts.length; i++) {
+        var s = scripts[i];
+        if (s.src && /\/t\.js(\?|$)/.test(s.src)) {
+          thisScript = s;
+          break;
+        }
+      }
+    }
+
+    if (!thisScript) return;
+
+    var siteKey = thisScript.getAttribute('data-site');
     if (!siteKey) return;
 
     // Ambil origin dari lokasi script ini sendiri, supaya beacon selalu
     // dikirim ke domain LinkMe yang benar (aman dipakai di custom domain).
-    var scriptUrl = new URL(currentScript.src);
+    var scriptUrl = new URL(thisScript.src, location.href);
     var endpoint = scriptUrl.origin + '/api/collect';
 
     var payload = {
