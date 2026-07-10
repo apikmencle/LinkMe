@@ -37,7 +37,14 @@
     var body = JSON.stringify(payload);
 
     if (navigator.sendBeacon) {
-      var blob = new Blob([body], { type: 'application/json' });
+      // PENTING: tipe harus salah satu dari 'text/plain',
+      // 'application/x-www-form-urlencoded', atau 'multipart/form-data'
+      // (tipe yang dianggap "simple request" oleh browser). Kalau pakai
+      // 'application/json', browser akan memaksa CORS preflight (OPTIONS)
+      // dulu untuk request lintas-domain - dan di banyak versi Chrome,
+      // request sendBeacon POST yang sesungguhnya justru TIDAK PERNAH
+      // dikirim setelah preflight, tanpa error apapun yang terlihat.
+      var blob = new Blob([body], { type: 'text/plain' });
       navigator.sendBeacon(endpoint, blob);
     } else {
       fetch(endpoint, {
