@@ -58,7 +58,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { site_key, path, referrer } = req.body || {};
+    // Body bisa datang dalam 2 bentuk:
+    // 1. Objek yang sudah di-parse Next.js (kalau Content-Type: application/json,
+    //    misal saat fallback pakai fetch())
+    // 2. String mentah (kalau Content-Type: text/plain, dipakai sendBeacon
+    //    supaya menghindari CORS preflight - lihat catatan di public/t.js)
+    let payload = req.body;
+    if (typeof payload === 'string') {
+      try {
+        payload = JSON.parse(payload);
+      } catch {
+        payload = {};
+      }
+    }
+
+    const { site_key, path, referrer } = payload || {};
 
     if (!site_key) {
       return res.status(400).json({ error: 'site_key wajib diisi' });
