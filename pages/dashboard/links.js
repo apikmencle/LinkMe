@@ -120,7 +120,20 @@ export default function Dashboard() {
   }
 
   async function handleVisit(link) {
-    await supabase.from('links').update({ clicks: link.clicks + 1 }).eq('id', link.id);
+    // Lewat API server-side (bukan rpc() langsung dari browser) supaya
+    // kepemilikan link diverifikasi dulu sebelum klik dicatat - lihat
+    // pages/api/links/visit.js untuk alasannya.
+    const {
+      data: { session: currentSession },
+    } = await supabase.auth.getSession();
+    await fetch('/api/links/visit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${currentSession?.access_token}`,
+      },
+      body: JSON.stringify({ code: link.code }),
+    });
     fetchLinks();
     window.open(link.url, '_blank');
   }
