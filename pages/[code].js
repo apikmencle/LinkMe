@@ -2,8 +2,40 @@ import { supabaseAdmin } from '../lib/supabaseAdmin';
 
 const MILESTONES = [10, 50, 100, 500, 1000];
 
-export async function getServerSideProps({ params }) {
+// Bot/crawler dikenal yang mengunjungi link untuk membuat preview (WhatsApp,
+// Telegram, dsb), mesin pencari, atau tool command-line. Kunjungan ini bukan
+// klik asli manusia - tetap di-redirect (supaya preview tetap muncul benar),
+// tapi TIDAK dihitung sebagai klik.
+const BOT_UA_PATTERN =
+  /facebookexternalhit|WhatsApp|TelegramBot|Twitterbot|Slackbot|LinkedInBot|Discordbot|Googlebot|bingbot|YandexBot|DuckDuckBot|Applebot|SkypeUriPreview|redditbot|Pinterest|Embedly|Quora Link Preview|W3C_Validator|curl|wget|python-requests|node-fetch|Go-http-client|bytespider|SemrushBot|AhrefsBot|MJ12bot|PetalBot/i;
+
+function isBot(ua = '') {
+  return BOT_UA_PATTERN.test(ua);
+}
+
+export async function getServerSideProps({ params, req }) {
   const { code } = params;
+  const ua = req.headers['user-agent'] || '';
+
+  if (isBot(ua)) {
+    // Bot: cukup baca URL tujuannya, jangan ikut menambah counter klik.
+    const { data, error } = await supabaseAdmin
+      .from('links')
+      .select('url')
+      .eq('code', code)
+      .maybeSingle();
+
+    if (error || !data) {
+      return { notFound: true };
+    }
+
+    return {
+      redirect: {
+        destination: data.url,
+        permanent: false,
+      },
+    };
+  }
 
   // increment_link_clicks melakukan baca+tulis dalam satu statement SQL
   // (lihat migrasi 006_atomic_link_clicks.sql) - aman dari race condition
