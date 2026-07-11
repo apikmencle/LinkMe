@@ -1330,3 +1330,41 @@ button{ font-family:inherit; }
   .link-actions{ width:100%; }
   .link-actions .icon-btn{ flex:1; }
 }
+
+/* ---------- Tablet (481px - 1024px): transisi 2 kolom sebelum stack penuh ---------- */
+@media (min-width:481px) and (max-width:1024px){
+  .stat-grid,
+  .summary-grid,
+  .landing-features-grid{ grid-template-columns:repeat(2, 1fr); }
+}
+
+/* ---------- Layar kecil (<=480px): HP sempit, lipat, dsb ---------- */
+@media (max-width:480px){
+  .stat-grid,
+  .summary-grid,
+  .landing-features-grid{ grid-template-columns:1fr; }
+
+  .dashboard-content{ padding:16px; }
+  .card{ padding:16px; }
+  .page-header h1{ font-size:22px; }
+  .page-header p{ font-size:13.5px; }
+
+  .landing-nav{ padding:14px 16px; flex-wrap:wrap; row-gap:10px; }
+  .landing-hero{ padding:56px 16px 40px; }
+  .landing-hero h1{ font-size:25px; }
+  .landing-hero p{ font-size:14px; }
+  .landing-cta{ flex-direction:column; align-items:stretch; }
+  .landing-cta a{ text-align:center; }
+  .landing-features{ padding:16px 16px 56px; }
+
+  .auth-card{ padding:28px 20px; }
+  .auth-card h1{ font-size:21px; }
+
+  .notif-panel{ width:calc(100vw - 32px); }
+  .site-switcher-menu{ max-width:calc(100vw - 32px); }
+  .user-menu{ max-width:calc(100vw - 32px); }
+
+  .create-form{ gap:12px; }
+  .traffic-log-meta{ gap:6px; }
+  .meta-chip{ font-size:11.5px; padding:4px 9px; }
+}
