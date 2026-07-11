@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }) {
   }, [router.pathname]);
 
   const activeItem = NAV_ITEMS.find((item) => item.href === router.pathname);
-  const seoTitle = activeItem ? `${activeItem.label} Â· LinkMe` : 'Dasbor Â· LinkMe';
+  const seoTitle = activeItem ? `${activeItem.label} \u00b7 LinkMe` : 'Dasbor \u00b7 LinkMe';
 
   if (loading || !session) {
     return (
