@@ -5,33 +5,31 @@ const MILESTONES = [10, 50, 100, 500, 1000];
 export async function getServerSideProps({ params }) {
   const { code } = params;
 
-  const { data, error } = await supabaseAdmin
-    .from('links')
-    .select('*')
-    .eq('code', code)
-    .maybeSingle();
+  // increment_link_clicks melakukan baca+tulis dalam satu statement SQL
+  // (lihat migrasi 006_atomic_link_clicks.sql) - aman dari race condition
+  // dibanding pola lama (select clicks, +1 di JS, lalu update terpisah).
+  const { data, error } = await supabaseAdmin.rpc('increment_link_clicks', {
+    p_code: code,
+  });
 
-  if (error || !data) {
+  const row = Array.isArray(data) ? data[0] : data;
+
+  if (error || !row) {
     return { notFound: true };
   }
 
-  const newClicks = data.clicks + 1;
+  const newClicks = row.new_clicks;
 
-  await supabaseAdmin
-    .from('links')
-    .update({ clicks: newClicks })
-    .eq('code', code);
-
-  if (data.user_id && MILESTONES.includes(newClicks)) {
+  if (row.owner_id && MILESTONES.includes(newClicks)) {
     await supabaseAdmin.from('notifications').insert({
-      user_id: data.user_id,
+      user_id: row.owner_id,
       message: `Tautan /${code} mencapai ${newClicks} klik! 🎉`,
     });
   }
 
   return {
     redirect: {
-      destination: data.url,
+      destination: row.target_url,
       permanent: false,
     },
   };
@@ -40,4 +38,3 @@ export async function getServerSideProps({ params }) {
 export default function RedirectPage() {
   return null;
 }
-
