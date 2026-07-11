@@ -1164,12 +1164,13 @@ button{ font-family:inherit; }
 .simple-list-label{ color:var(--text); word-break:break-all; }
 .simple-list-value{ font-family:'Space Grotesk', sans-serif; font-weight:700; color:var(--ink); flex-shrink:0; margin-left:12px; }
 
-.traffic-log-list{ display:flex; flex-direction:column; gap:10px; }
+.traffic-log-list{ display:flex; flex-direction:column; }
 .traffic-log-item{
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:14px 16px;
+  padding:16px 2px;
+  border-bottom:1px solid var(--border);
 }
+.traffic-log-item:first-child{ padding-top:2px; }
+.traffic-log-item:last-child{ border-bottom:none; padding-bottom:2px; }
 .traffic-log-top{
   display:flex;
   align-items:flex-start;
