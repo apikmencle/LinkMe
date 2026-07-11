@@ -1,0 +1,36 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# env files (JANGAN pernah commit ini — berisi SUPABASE_SERVICE_KEY)
+.env
+.env*.local
+
+# vercel
+.vercel
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# editor / OS
+.DS_Store
+*.pem
+.vscode/
+.idea/
+
+# typescript (jaga-jaga kalau nanti migrasi ke TS)
+*.tsbuildinfo
+next-env.d.ts
