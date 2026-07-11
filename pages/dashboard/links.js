@@ -31,6 +31,8 @@ function timeAgo(ts) {
   return Math.floor(diff / 86400) + ' hari lalu';
 }
 
+const PAGE_SIZE = 50;
+
 export default function Dashboard() {
   const { session } = useAuth();
   const [links, setLinks] = useState([]);
@@ -39,22 +41,64 @@ export default function Dashboard() {
   const [err, setErr] = useState('');
   const [creating, setCreating] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [host, setHost] = useState('');
   const [copiedCode, setCopiedCode] = useState('');
+  const [stats, setStats] = useState({ total: 0, totalClicks: 0 });
 
   useEffect(() => {
     setHost(window.location.origin);
-    if (session) fetchLinks();
+    if (session) {
+      fetchFirstPage();
+      fetchStats();
+    }
   }, [session]);
 
-  async function fetchLinks() {
+  // Stat di kartu ringkasan dihitung terpisah dari daftar yang dipaginasi
+  // di bawah, supaya tetap akurat mencerminkan SEMUA link user - bukan cuma
+  // 50 yang sedang ditampilkan. Cuma ambil kolom `clicks` (bukan select *),
+  // jadi tetap ringan walau jumlah link sudah banyak.
+  async function fetchStats() {
+    const [{ count }, { data: clicksData }] = await Promise.all([
+      supabase.from('links').select('id', { count: 'exact', head: true }),
+      supabase.from('links').select('clicks'),
+    ]);
+    const totalClicks = (clicksData || []).reduce((sum, l) => sum + l.clicks, 0);
+    setStats({ total: count || 0, totalClicks });
+  }
+
+  async function fetchFirstPage() {
     setFetching(true);
     const { data, error } = await supabase
       .from('links')
       .select('*')
-      .order('created_at', { ascending: false });
-    if (!error) setLinks(data || []);
+      .order('created_at', { ascending: false })
+      .range(0, PAGE_SIZE - 1);
+    if (!error) {
+      setLinks(data || []);
+      setHasMore((data || []).length === PAGE_SIZE);
+    }
     setFetching(false);
+  }
+
+  async function fetchMore() {
+    setLoadingMore(true);
+    const { data, error } = await supabase
+      .from('links')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(links.length, links.length + PAGE_SIZE - 1);
+    if (!error) {
+      setLinks((prev) => [...prev, ...(data || [])]);
+      setHasMore((data || []).length === PAGE_SIZE);
+    }
+    setLoadingMore(false);
+  }
+
+  function refreshAll() {
+    fetchFirstPage();
+    fetchStats();
   }
 
   async function notify(message) {
@@ -109,14 +153,14 @@ export default function Dashboard() {
       notify(`Tautan baru berhasil dibuat: /${code}`);
       setUrl('');
       setAlias('');
-      fetchLinks();
+      refreshAll();
     }
   }
 
   async function handleDelete(id, code) {
     await supabase.from('links').delete().eq('id', id);
     notify(`Tautan /${code} telah dihapus`);
-    fetchLinks();
+    refreshAll();
   }
 
   async function handleVisit(link) {
@@ -134,7 +178,7 @@ export default function Dashboard() {
       },
       body: JSON.stringify({ code: link.code }),
     });
-    fetchLinks();
+    refreshAll();
     window.open(link.url, '_blank');
   }
 
@@ -155,18 +199,18 @@ export default function Dashboard() {
       <div className="stat-grid">
         <div className="stat-card">
           <span className="stat-label">Total Tautan</span>
-          <span className="stat-value">{fetching ? '—' : links.length}</span>
+          <span className="stat-value">{fetching ? '—' : stats.total}</span>
         </div>
         <div className="stat-card">
           <span className="stat-label">Total Klik</span>
-          <span className="stat-value">{fetching ? '—' : links.reduce((sum, l) => sum + l.clicks, 0)}</span>
+          <span className="stat-value">{fetching ? '—' : stats.totalClicks}</span>
         </div>
         <div className="stat-card">
           <span className="stat-label">Rata-rata Klik / Tautan</span>
           <span className="stat-value">
-            {fetching || !links.length
+            {fetching || !stats.total
               ? '—'
-              : Math.round((links.reduce((sum, l) => sum + l.clicks, 0) / links.length) * 10) / 10}
+              : Math.round((stats.totalClicks / stats.total) * 10) / 10}
           </span>
         </div>
       </div>
@@ -204,7 +248,7 @@ export default function Dashboard() {
       <div className="card">
         <div className="card-header">
           <h2>Semua tautan</h2>
-          <span className="muted">{links.length} tautan</span>
+          <span className="muted">{stats.total} tautan</span>
         </div>
 
         {fetching ? (
@@ -214,31 +258,39 @@ export default function Dashboard() {
             Belum ada tautan. Buat yang pertama lewat form di atas.
           </div>
         ) : (
-          <div className="link-table">
-            {links.map((l) => (
-              <div className="link-row" key={l.id}>
-                <div className="link-main">
-                  <div className="link-code">{host.replace(/^https?:\/\//, '')}/{l.code}</div>
-                  <div className="link-orig">{l.url}</div>
-                  <div className="link-meta">Dibuat {timeAgo(l.created_at)}</div>
+          <>
+            <div className="link-table">
+              {links.map((l) => (
+                <div className="link-row" key={l.id}>
+                  <div className="link-main">
+                    <div className="link-code">{host.replace(/^https?:\/\//, '')}/{l.code}</div>
+                    <div className="link-orig">{l.url}</div>
+                    <div className="link-meta">Dibuat {timeAgo(l.created_at)}</div>
+                  </div>
+                  <div className="link-clicks">
+                    <b>{l.clicks}</b>
+                    <span>klik</span>
+                  </div>
+                  <div className="link-actions">
+                    <button className="icon-btn" onClick={() => handleCopy(l.code)}>
+                      {copiedCode === l.code ? 'Tersalin' : 'Salin'}
+                    </button>
+                    <button className="icon-btn" onClick={() => handleVisit(l)}>Buka</button>
+                    <button className="icon-btn danger" onClick={() => handleDelete(l.id, l.code)}>Hapus</button>
+                  </div>
                 </div>
-                <div className="link-clicks">
-                  <b>{l.clicks}</b>
-                  <span>klik</span>
-                </div>
-                <div className="link-actions">
-                  <button className="icon-btn" onClick={() => handleCopy(l.code)}>
-                    {copiedCode === l.code ? 'Tersalin' : 'Salin'}
-                  </button>
-                  <button className="icon-btn" onClick={() => handleVisit(l)}>Buka</button>
-                  <button className="icon-btn danger" onClick={() => handleDelete(l.id, l.code)}>Hapus</button>
-                </div>
+              ))}
+            </div>
+            {hasMore && (
+              <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                <button className="btn-primary" onClick={fetchMore} disabled={loadingMore}>
+                  {loadingMore ? 'Memuat...' : 'Muat Lebih Banyak'}
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </DashboardLayout>
   );
-          }
-          
+                }
