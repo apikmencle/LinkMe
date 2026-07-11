@@ -15,6 +15,13 @@ function buildSnippet(host, siteKey) {
   return `<script async src="${host}/t.js" data-site="${siteKey}"></script>`;
 }
 
+// Cek format domain sederhana: label.label(.label...), tanpa protokol/slash,
+// supaya tidak kesimpan nilai ngawur seperti "https://x" atau "blog saya".
+const DOMAIN_RE = /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))+$/;
+function isValidDomain(value) {
+  return DOMAIN_RE.test(value.trim());
+}
+
 export default function Sites() {
   const { session } = useAuth();
   const [sites, setSites] = useState([]);
@@ -33,6 +40,8 @@ export default function Sites() {
   const [membersErr, setMembersErr] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviting, setInviting] = useState(false);
+  const [query, setQuery] = useState('');
+  const [lastSeenMap, setLastSeenMap] = useState({});
 
   useEffect(() => {
     setHost(window.location.origin);
@@ -50,6 +59,25 @@ export default function Sites() {
     (memberRows || []).forEach((r) => { map[r.site_id] = r.role; });
     setRoleMap(map);
     setFetching(false);
+
+    // Dijalankan terpisah supaya cek "sudah terpasang atau belum" tidak
+    // menahan tampilan awal daftar situs.
+    if (siteData && siteData.length) fetchLastSeen(siteData);
+  }
+
+  async function fetchLastSeen(siteList) {
+    const results = await Promise.all(
+      siteList.map(async (s) => {
+        const { data } = await supabase
+          .from('traffic_events')
+          .select('created_at')
+          .eq('site_id', s.id)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        return [s.id, data && data[0] ? data[0].created_at : null];
+      })
+    );
+    setLastSeenMap(Object.fromEntries(results));
   }
 
   async function handleCreate(e) {
@@ -58,6 +86,11 @@ export default function Sites() {
 
     if (!name.trim()) {
       setErr('Nama situs wajib diisi.');
+      return;
+    }
+
+    if (domain.trim() && !isValidDomain(domain)) {
+      setErr('Format domain tidak valid. Isi tanpa "https://" atau "/", contoh: blog-saya.com');
       return;
     }
 
@@ -98,7 +131,11 @@ export default function Sites() {
     if (!error) fetchSites();
   }
 
-  async function handleDelete(id) {
+  async function handleDelete(id, name) {
+    const ok = window.confirm(
+      `Hapus situs "${name}"? Semua data traffic yang tercatat untuk situs ini akan ikut terhapus dan tidak bisa dikembalikan.`
+    );
+    if (!ok) return;
     await supabase.from('sites').delete().eq('id', id);
     fetchSites();
   }
@@ -175,6 +212,12 @@ export default function Sites() {
     if (!error) loadMembers(siteId);
   }
 
+  const filteredSites = sites.filter((s) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    return s.name.toLowerCase().includes(q) || (s.domain || '').toLowerCase().includes(q);
+  });
+
   return (
     <DashboardLayout>
       <div className="page-header">
@@ -194,7 +237,9 @@ export default function Sites() {
             />
           </div>
           <div className="field">
-            <label>Domain (opsional)</label>
+            <label title="Dipakai untuk menampilkan link cepat ke situsmu di daftar, tanpa https:// atau /">
+              Domain (opsional)
+            </label>
             <input
               type="text"
               value={domain}
@@ -203,7 +248,7 @@ export default function Sites() {
             />
           </div>
           <button className="btn-primary" disabled={creating}>
-            {creating ? 'Menambah...' : 'Tambah Situs â†’'}
+            {creating ? 'Menambah...' : 'Tambah Situs \u2192'}
           </button>
         </form>
         {err && <div className="auth-err">{err}</div>}
@@ -215,23 +260,51 @@ export default function Sites() {
           <span className="muted">{sites.length} situs</span>
         </div>
 
+        {sites.length > 3 && (
+          <input
+            type="text"
+            className="site-search-input"
+            placeholder="Cari situs berdasarkan nama atau domain..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        )}
+
         {fetching ? (
-          <div className="empty-state">Memuat...</div>
+          <div className="link-table">
+            <div className="skeleton-row" />
+            <div className="skeleton-row" />
+            <div className="skeleton-row" />
+          </div>
         ) : sites.length === 0 ? (
           <div className="empty-state">
             Belum ada situs. Tambah yang pertama lewat form di atas, lalu pasang
             snippet-nya di blog/landing page kamu.
           </div>
+        ) : filteredSites.length === 0 ? (
+          <div className="empty-state">
+            Tidak ada situs yang cocok dengan pencarian "{query}".
+          </div>
         ) : (
           <div className="link-table">
-            {sites.map((s) => {
+            {filteredSites.map((s) => {
               const myRole = roleMap[s.id] || 'member';
               const isOwner = myRole === 'owner';
               return (
                 <div className="link-row" key={s.id} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '8px' }}>
                     <div className="link-main">
-                      <div className="link-code">
+                      <div className="link-code" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        {s.domain && (
+                          <img
+                            src={`https://www.google.com/s2/favicons?domain=${s.domain}&sz=32`}
+                            alt=""
+                            width={16}
+                            height={16}
+                            style={{ borderRadius: '3px', flexShrink: 0 }}
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        )}
                         {s.name}{' '}
                         <span className="live-badge" style={{ opacity: s.is_active ? 1 : 0.5 }}>
                           <span className="live-dot" style={{ background: s.is_active ? '#22c55e' : '#9ca3af' }} />
@@ -239,10 +312,26 @@ export default function Sites() {
                         </span>{' '}
                         <span className={`role-badge ${isOwner ? 'owner' : ''}`}>
                           {isOwner ? 'Pemilik' : 'Anggota'}
-                        </span>
+                        </span>{' '}
+                        {lastSeenMap[s.id] !== undefined && (
+                          <span className={`install-badge ${lastSeenMap[s.id] ? 'installed' : 'not-installed'}`}>
+                            {lastSeenMap[s.id] ? 'Terpasang' : 'Belum Terpasang'}
+                          </span>
+                        )}
                       </div>
-                      <div className="link-orig">{s.domain || 'Domain belum diisi'}</div>
-                      <div className="link-meta">Dibuat {timeAgo(s.created_at)}</div>
+                      <div className="link-orig">
+                        {s.domain ? (
+                          <a href={`https://${s.domain}`} target="_blank" rel="noopener noreferrer">
+                            {s.domain}
+                          </a>
+                        ) : (
+                          'Domain belum diisi'
+                        )}
+                      </div>
+                      <div className="link-meta">
+                        Dibuat {timeAgo(s.created_at)}
+                        {lastSeenMap[s.id] ? ` \u00b7 Traffic terakhir ${timeAgo(lastSeenMap[s.id])}` : ''}
+                      </div>
                     </div>
                     <div className="link-actions">
                       <button className="icon-btn" onClick={() => setExpandedId(expandedId === s.id ? '' : s.id)}>
@@ -256,7 +345,7 @@ export default function Sites() {
                           <button className="icon-btn" onClick={() => handleToggleActive(s)}>
                             {s.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                           </button>
-                          <button className="icon-btn danger" onClick={() => handleDelete(s.id)}>Hapus</button>
+                          <button className="icon-btn danger" onClick={() => handleDelete(s.id, s.name)}>Hapus</button>
                         </>
                       ) : (
                         <button className="icon-btn danger" onClick={() => handleLeave(s.id)}>Keluar</button>
@@ -335,4 +424,4 @@ export default function Sites() {
       </div>
     </DashboardLayout>
   );
-                }
+          }
