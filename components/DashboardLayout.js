@@ -4,7 +4,6 @@ import Sidebar, { NAV_ITEMS } from './Sidebar';
 import Header from './Header';
 import Seo from './Seo';
 import { useAuth } from '../context/AuthContext';
-import { SitesProvider } from '../context/SitesContext';
 
 export default function DashboardLayout({ children }) {
   const { session, loading } = useAuth();
@@ -34,15 +33,13 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
-    <SitesProvider>
-      <div className="dashboard-shell">
-        <Seo title={seoTitle} noindex />
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <div className="dashboard-main">
-          <Header onMenuClick={() => setSidebarOpen(true)} />
-          <main className="dashboard-content">{children}</main>
-        </div>
+    <div className="dashboard-shell">
+      <Seo title={seoTitle} noindex />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="dashboard-main">
+        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <main className="dashboard-content">{children}</main>
       </div>
-    </SitesProvider>
+    </div>
   );
 }
