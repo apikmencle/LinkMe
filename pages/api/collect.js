@@ -46,6 +46,35 @@ function hashIp(ip) {
   return crypto.createHash('sha256').update(`${salt}:${ip}`).digest('hex');
 }
 
+// Batas kasar supaya payload aneh (string raksasa) tidak ikut tersimpan -
+// site_key itu publik (ada di source HTML blog user), jadi endpoint ini
+// harus asumsi pengirim bisa jadi tidak jujur.
+function clamp(str, max) {
+  return String(str || '').slice(0, max);
+}
+
+// Rate limit sangat sederhana: tolak kalau IP+situs yang sama sudah
+// mengirim > RATE_LIMIT_MAX event dalam RATE_LIMIT_WINDOW_MS terakhir.
+// Dicek lewat tabel traffic_events sendiri (tanpa dependency tambahan
+// seperti Redis) - cukup untuk skala blog pribadi. Kalau traffic sudah
+// besar, pertimbangkan pindah ke Upstash Redis/Vercel KV supaya tidak
+// menambah beban query per request.
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX = 30;
+
+async function isRateLimited(siteId, ipHash) {
+  const since = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
+  const { count, error } = await supabaseAdmin
+    .from('traffic_events')
+    .select('id', { count: 'exact', head: true })
+    .eq('site_id', siteId)
+    .eq('ip_hash', ipHash)
+    .gte('created_at', since);
+
+  if (error) return false; // kalau cek gagal, jangan blokir pengunjung asli
+  return (count || 0) >= RATE_LIMIT_MAX;
+}
+
 export default async function handler(req, res) {
   setCors(res);
 
@@ -104,12 +133,16 @@ export default async function handler(req, res) {
     const ua = req.headers['user-agent'] || '';
     const device = parseDevice(ua);
     const browser = parseBrowser(ua);
-    const source = cleanReferrer(referrer || req.headers['referer']);
+    const source = clamp(cleanReferrer(referrer || req.headers['referer']), 255);
     const langHeader = req.headers['accept-language'] || 'EN';
     const lang = langHeader.split(',')[0].split('-')[0].toUpperCase();
 
-    const trackPath = path || '/';
+    const trackPath = clamp(path || '/', 512);
     const ipHash = hashIp(ip);
+
+    if (await isRateLimited(site.id, ipHash)) {
+      return res.status(429).json({ error: 'Terlalu banyak request, coba lagi nanti.' });
+    }
 
     // Catatan: sengaja TIDAK ADA pengecekan "sudah pernah tercatat hari ini"
     // di sini. Sebelumnya ada dedup per ip_hash+path+hari (dibawa dari logika
@@ -137,4 +170,4 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-}
+    }
