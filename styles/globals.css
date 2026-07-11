@@ -860,6 +860,59 @@ button{ font-family:inherit; }
   min-height:16px;
 }
 
+.role-badge{
+  display:inline-block;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.03em;
+  padding:3px 9px;
+  border-radius:999px;
+  background:var(--panel);
+  color:var(--text-muted);
+  vertical-align:middle;
+}
+.role-badge.owner{
+  background:var(--accent-soft);
+  color:var(--accent-dark);
+}
+
+.members-panel{
+  margin-top:12px;
+  width:100%;
+  padding-top:12px;
+  border-top:1px solid var(--border);
+}
+.member-list{ display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+.member-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 12px;
+  border-radius:9px;
+  background:var(--panel);
+}
+.member-info{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.member-email{ font-size:13.5px; color:var(--text); }
+
+.invite-form{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.invite-form input{
+  flex:1;
+  min-width:200px;
+  padding:9px 12px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--bg);
+  font-size:13.5px;
+  color:var(--text);
+}
+.invite-form input:focus{ outline:none; border-color:var(--accent); }
+
 .range-badge{
   font-size:12.5px;
   font-weight:600;
@@ -1240,4 +1293,4 @@ button{ font-family:inherit; }
   .link-clicks b{ font-size:15px; }
   .link-actions{ width:100%; }
   .link-actions .icon-btn{ flex:1; }
-                }
+                         }
