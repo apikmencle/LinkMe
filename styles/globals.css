@@ -655,7 +655,32 @@ button{ font-family:inherit; }
   opacity:0.7;
 }
 
+.site-search-input{
+  width:100%;
+  padding:10px 14px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  font-size:13.5px;
+  margin-bottom:14px;
+  background:var(--panel);
+  color:var(--text);
+}
+.site-search-input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); background:var(--bg); }
+
 .link-table{ display:flex; flex-direction:column; gap:10px; }
+
+.skeleton-row{
+  height:76px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:linear-gradient(90deg, var(--panel) 25%, var(--accent-soft) 50%, var(--panel) 75%);
+  background-size:200% 100%;
+  animation:skeleton-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer{
+  0%{ background-position:200% 0; }
+  100%{ background-position:-200% 0; }
+}
 .link-row{
   display:flex;
   align-items:center;
@@ -684,7 +709,7 @@ button{ font-family:inherit; }
 }
 .link-clicks b{ font-family:'Space Grotesk', sans-serif; font-size:18px; color:var(--ink); }
 
-.link-actions{ display:flex; gap:6px; flex-shrink:0; }
+.link-actions{ display:flex; gap:6px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
 .icon-btn{
   background:var(--panel);
   border:1px solid var(--border);
@@ -859,6 +884,16 @@ button{ font-family:inherit; }
   color:var(--live);
   min-height:16px;
 }
+
+.install-badge{
+  display:inline-block;
+  font-size:11px;
+  font-weight:600;
+  padding:2px 8px;
+  border-radius:20px;
+}
+.install-badge.installed{ background:var(--accent-soft); color:var(--accent-dark); }
+.install-badge.not-installed{ background:rgba(239,68,68,0.1); color:var(--danger); }
 
 .role-badge{
   display:inline-block;
@@ -1293,4 +1328,4 @@ button{ font-family:inherit; }
   .link-clicks b{ font-size:15px; }
   .link-actions{ width:100%; }
   .link-actions .icon-btn{ flex:1; }
-                         }
+}
