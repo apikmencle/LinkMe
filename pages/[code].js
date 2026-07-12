@@ -55,7 +55,7 @@ export async function getServerSideProps({ params, req }) {
   if (row.owner_id && MILESTONES.includes(newClicks)) {
     await supabaseAdmin.from('notifications').insert({
       user_id: row.owner_id,
-      message: `Tautan /${code} mencapai ${newClicks} klik! 🎉`,
+      message: `Tautan /${code} mencapai ${newClicks} klik! \u{1F389}`,
     });
   }
 
