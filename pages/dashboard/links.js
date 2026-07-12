@@ -199,17 +199,17 @@ export default function Dashboard() {
       <div className="stat-grid">
         <div className="stat-card">
           <span className="stat-label">Total Tautan</span>
-          <span className="stat-value">{fetching ? '—' : stats.total}</span>
+          <span className="stat-value">{fetching ? '\u2014' : stats.total}</span>
         </div>
         <div className="stat-card">
           <span className="stat-label">Total Klik</span>
-          <span className="stat-value">{fetching ? '—' : stats.totalClicks}</span>
+          <span className="stat-value">{fetching ? '\u2014' : stats.totalClicks}</span>
         </div>
         <div className="stat-card">
           <span className="stat-label">Rata-rata Klik / Tautan</span>
           <span className="stat-value">
             {fetching || !stats.total
-              ? '—'
+              ? '\u2014'
               : Math.round((stats.totalClicks / stats.total) * 10) / 10}
           </span>
         </div>
@@ -239,7 +239,7 @@ export default function Dashboard() {
             </div>
           </div>
           <button className="btn-primary" disabled={creating}>
-            {creating ? 'Membuat...' : 'Pendekkan →'}
+            {creating ? 'Membuat...' : 'Pendekkan \u2192'}
           </button>
         </form>
         {err && <div className="auth-err">{err}</div>}
