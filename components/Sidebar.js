@@ -113,9 +113,9 @@ export default function Sidebar({ isOpen, onClose }) {
       <aside className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-brand">
           <span className="sidebar-logo">
-            <span className="brand-bracket">⟨</span>
+            <span className="brand-bracket">{'\u27E8'}</span>
             <span className="brand-dot" />
-            <span className="brand-bracket">⟩</span>
+            <span className="brand-bracket">{'\u27E9'}</span>
           </span>
           <span className="sidebar-brand-name">LinkMe</span>
         </div>
@@ -147,4 +147,3 @@ export default function Sidebar({ isOpen, onClose }) {
     </>
   );
     }
-    
