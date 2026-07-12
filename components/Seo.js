@@ -20,7 +20,7 @@ export default function Seo({ title, description, noindex }) {
       <meta property="og:image" content={OG_IMAGE} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:image:alt" content="LinkMe \u2014 Analisis Traffic Blog & Landing Page" />
+      <meta property="og:image:alt" content={'LinkMe \u2014 Analisis Traffic Blog & Landing Page'} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={desc} />
