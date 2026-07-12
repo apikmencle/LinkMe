@@ -20,7 +20,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Apa bedanya menu "Analitik Tautan" dengan "Ringkasan Traffic"?',
-    a: '"Analitik Tautan" menampilkan performa tautan-tautan pendek yang kamu buat di LinkMe. Sementara "Ringkasan Traffic" menampilkan data kunjungan dari situs/blog yang kamu daftarkan lewat menu "Situs Saya" — dua sumber data yang berbeda, ditampilkan dalam satu dasbor.',
+    a: '"Analitik Tautan" menampilkan performa tautan-tautan pendek yang kamu buat di LinkMe. Sementara "Ringkasan Traffic" menampilkan data kunjungan dari situs/blog yang kamu daftarkan lewat menu "Situs Saya" \u2014 dua sumber data yang berbeda, ditampilkan dalam satu dasbor.',
   },
   {
     q: 'Kenapa saya mendapat notifikasi milestone klik?',
@@ -32,7 +32,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Apakah data "Real-Time" di Ringkasan Traffic benar-benar langsung?',
-    a: 'Data pada halaman Real-Time diperbarui otomatis setiap 30 detik, dan menampilkan aktivitas dalam 30 menit terakhir — sehingga cukup dekat dengan waktu nyata untuk memantau kunjungan yang sedang berlangsung.',
+    a: 'Data pada halaman Real-Time diperbarui otomatis setiap 30 detik, dan menampilkan aktivitas dalam 30 menit terakhir \u2014 sehingga cukup dekat dengan waktu nyata untuk memantau kunjungan yang sedang berlangsung.',
   },
 ];
 
@@ -69,5 +69,4 @@ export default function FAQ() {
       </div>
     </DashboardLayout>
   );
-}
-
+  }
