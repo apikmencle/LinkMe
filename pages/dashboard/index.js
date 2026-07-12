@@ -183,7 +183,7 @@ export default function DashboardHome() {
                   <circle cx="12" cy="12" r="3" />
                 </svg>
               </div>
-              <span className="summary-label">Unique Visitors (Sepanjang Waktu)</span>
+              <span className="summary-label">Unique Visitors</span>
               <span className="summary-value">{loading ? '\u2014' : (allTime?.total_visits ?? 0).toLocaleString('id-ID')}</span>
               <span className="summary-delta">
                 {!loading && <>+{(stats?.total_visits ?? 0).toLocaleString('id-ID')} Hari Ini</>}
@@ -196,7 +196,7 @@ export default function DashboardHome() {
                   <path d="M5 3l14 8-6 2-2 6-6-16z" fill="currentColor" stroke="none" />
                 </svg>
               </div>
-              <span className="summary-label">Total Klik (Sepanjang Waktu)</span>
+              <span className="summary-label">Total Klik</span>
               <span className="summary-value">{loading ? '\u2014' : (allTime?.total_clicks ?? 0).toLocaleString('id-ID')}</span>
               <span className="summary-delta">
                 {!loading && <>+{(stats?.total_clicks ?? 0).toLocaleString('id-ID')} Hari Ini</>}
