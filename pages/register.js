@@ -81,9 +81,9 @@ export default function Register() {
       <Seo title="Daftar" description="Buat akun LinkMe gratis dan mulai pendekkan tautanmu dalam hitungan detik." />
       <div className="auth-card">
         <div className="brand-mark">
-          <span className="brand-bracket">âŸ¨</span>
+          <span className="brand-bracket">{'\u27E8'}</span>
           <span className="brand-dot" />
-          <span className="brand-bracket">âŸ©</span>
+          <span className="brand-bracket">{'\u27E9'}</span>
         </div>
         <h1>Buat akun</h1>
         <p className="auth-sub">Mulai pendekkan tautanmu dalam hitungan detik.</p>
@@ -160,5 +160,4 @@ export default function Register() {
       </div>
     </div>
   );
-    }
-          
+              }
