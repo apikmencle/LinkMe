@@ -16,7 +16,7 @@ const FEATURES = [
   },
   {
     title: 'Real-Time',
-    desc: 'Lihat siapa yang sedang membuka halamanmu detik ini juga — diperbarui otomatis tiap 30 detik.',
+    desc: 'Lihat siapa yang sedang membuka halamanmu detik ini juga \u2014 diperbarui otomatis tiap 30 detik.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" />
@@ -58,9 +58,9 @@ export default function Home() {
       <Seo />
       <nav className="landing-nav">
         <div className="brand-mark">
-          <span className="brand-bracket">⟨</span>
+          <span className="brand-bracket">{'\u27E8'}</span>
           <span className="brand-dot" />
-          <span className="brand-bracket">⟩</span>
+          <span className="brand-bracket">{'\u27E9'}</span>
           <span className="sidebar-brand-name">LinkMe</span>
         </div>
         <div className="landing-nav-actions">
@@ -72,11 +72,11 @@ export default function Home() {
       <section className="landing-hero">
         <div className="compress-demo">
           <span className="live-badge"><span className="live-dot" />Live</span>
-          <span className="compress-arrow">•</span>
+          <span className="compress-arrow">{'\u2022'}</span>
           <span className="compress-short">128 pengunjung aktif sekarang</span>
         </div>
         <h1>Tahu persis siapa yang mengunjungi blogmu.</h1>
-        <p>LinkMe menganalisis traffic blog atau landing page kamu secara real-time — tren harian, halaman terpopuler, asal pengunjung, semua dalam satu dasbor. Butuh pendekkan tautan juga? Itu tinggal fitur pelengkap.</p>
+        <p>LinkMe menganalisis traffic blog atau landing page kamu secara real-time {'\u2014'} tren harian, halaman terpopuler, asal pengunjung, semua dalam satu dasbor. Butuh pendekkan tautan juga? Itu tinggal fitur pelengkap.</p>
         <div className="landing-cta">
           <Link href="/register" className="btn-primary btn-lg">Mulai Gratis</Link>
           <Link href="/login" className="btn-ghost btn-lg">Sudah punya akun</Link>
@@ -97,9 +97,9 @@ export default function Home() {
 
       <footer className="landing-footer">
         <div className="brand-mark">
-          <span className="brand-bracket">⟨</span>
+          <span className="brand-bracket">{'\u27E8'}</span>
           <span className="brand-dot" />
-          <span className="brand-bracket">⟩</span>
+          <span className="brand-bracket">{'\u27E9'}</span>
           <span className="sidebar-brand-name">LinkMe</span>
         </div>
         <div className="landing-footer-links">
@@ -111,4 +111,3 @@ export default function Home() {
     </div>
   );
       }
-    
