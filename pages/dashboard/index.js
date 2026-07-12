@@ -172,7 +172,7 @@ export default function DashboardHome() {
                 </svg>
               </div>
               <span className="summary-label">Situs Terpantau</span>
-              <span className="summary-value">{sitesLoading ? 'â€”' : sites.length}</span>
+              <span className="summary-value">{sitesLoading ? '\u2014' : sites.length}</span>
               <span className="summary-caption">Situs aktif terdaftar</span>
             </div>
 
@@ -184,7 +184,7 @@ export default function DashboardHome() {
                 </svg>
               </div>
               <span className="summary-label">Unique Visitors (Sepanjang Waktu)</span>
-              <span className="summary-value">{loading ? 'â€”' : (allTime?.total_visits ?? 0).toLocaleString('id-ID')}</span>
+              <span className="summary-value">{loading ? '\u2014' : (allTime?.total_visits ?? 0).toLocaleString('id-ID')}</span>
               <span className="summary-delta">
                 {!loading && <>+{(stats?.total_visits ?? 0).toLocaleString('id-ID')} Hari Ini</>}
               </span>
@@ -197,7 +197,7 @@ export default function DashboardHome() {
                 </svg>
               </div>
               <span className="summary-label">Total Klik (Sepanjang Waktu)</span>
-              <span className="summary-value">{loading ? 'â€”' : (allTime?.total_clicks ?? 0).toLocaleString('id-ID')}</span>
+              <span className="summary-value">{loading ? '\u2014' : (allTime?.total_clicks ?? 0).toLocaleString('id-ID')}</span>
               <span className="summary-delta">
                 {!loading && <>+{(stats?.total_clicks ?? 0).toLocaleString('id-ID')} Hari Ini</>}
               </span>
@@ -324,7 +324,7 @@ export default function DashboardHome() {
               <div className="realtime-header"><span className="realtime-dot" />Real-Time</div>
               <h3 className="realtime-title">Tampilan dari Judul Halaman</h3>
               <p className="realtime-caption">Tampilan dalam 30 menit terakhir</p>
-              <div className="realtime-number">{realtimeLoading ? 'â€”' : (realtime?.total_views ?? 0)}</div>
+              <div className="realtime-number">{realtimeLoading ? '\u2014' : (realtime?.total_views ?? 0)}</div>
               <div className="realtime-divider" />
               <div className="realtime-list">
                 {realtimeLoading ? (
@@ -346,7 +346,7 @@ export default function DashboardHome() {
               <div className="realtime-header"><span className="realtime-dot" />Real-Time</div>
               <h3 className="realtime-title">Pengguna Aktif dari Judul Halaman</h3>
               <p className="realtime-caption">Pengguna aktif dalam 30 menit terakhir</p>
-              <div className="realtime-number">{realtimeLoading ? 'â€”' : (realtime?.active_users ?? 0)}</div>
+              <div className="realtime-number">{realtimeLoading ? '\u2014' : (realtime?.active_users ?? 0)}</div>
               <div className="realtime-divider" />
               <div className="realtime-list">
                 {realtimeLoading ? (
