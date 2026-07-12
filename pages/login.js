@@ -62,9 +62,9 @@ export default function Login() {
       <Seo title="Masuk" description="Masuk ke akun LinkMe kamu untuk mengelola tautan dan melihat analitik." />
       <div className="auth-card">
         <div className="brand-mark">
-          <span className="brand-bracket">âŸ¨</span>
+          <span className="brand-bracket">{'\u27E8'}</span>
           <span className="brand-dot" />
-          <span className="brand-bracket">âŸ©</span>
+          <span className="brand-bracket">{'\u27E9'}</span>
         </div>
         <h1>Masuk</h1>
         <p className="auth-sub">Senang lihatmu lagi.</p>
@@ -96,7 +96,7 @@ export default function Login() {
             <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+              placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
               required
             />
           </div>
@@ -119,4 +119,4 @@ export default function Login() {
       </div>
     </div>
   );
-                }
+            }
