@@ -96,7 +96,7 @@ export default function Login() {
             <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
+              placeholder={'\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'}
               required
             />
           </div>
@@ -119,4 +119,4 @@ export default function Login() {
       </div>
     </div>
   );
-            }
+    }
