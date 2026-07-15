@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useIsAdmin } from '../lib/useIsAdmin';
 
 const ICONS = {
   overview: (
@@ -70,6 +71,11 @@ const ICONS = {
       <rect x="3" y="16" width="7" height="5" rx="1.5" />
     </svg>
   ),
+  admin: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 3l8 4v5c0 5-3.4 8.4-8 9-4.6-.6-8-4-8-9V7l8-4z" />
+    </svg>
+  ),
 };
 
 const NAV_GROUPS = [
@@ -96,16 +102,21 @@ const NAV_GROUPS = [
       { href: '/dashboard/faq', label: 'FAQ', icon: 'faq' },
     ],
   },
+  {
+    label: 'Admin',
+    adminOnly: true,
+    items: [{ href: '/admin', label: 'Admin Platform', icon: 'admin' }],
+  },
 ];
 
-// Dipakai Header.js untuk menentukan judul halaman aktif. Judul selalu cuma
-// nama halaman itu sendiri - tanpa prefix nama kelompok menu.
 export const NAV_ITEMS = NAV_GROUPS.flatMap((g) =>
   g.items.map((item) => ({ ...item, group: g.label }))
 );
 
 export default function Sidebar({ isOpen, onClose }) {
   const router = useRouter();
+  const { isAdmin } = useIsAdmin();
+  const visibleGroups = NAV_GROUPS.filter((g) => !g.adminOnly || isAdmin);
 
   return (
     <>
@@ -121,7 +132,7 @@ export default function Sidebar({ isOpen, onClose }) {
         </div>
 
         <div className="sidebar-scroll">
-          {NAV_GROUPS.map((group, i) => (
+          {visibleGroups.map((group, i) => (
             <div className="sidebar-group" key={group.label}>
               {i > 0 && <div className="sidebar-divider" role="separator" aria-label={group.label} />}
               <div className="sidebar-section-label">{group.label}</div>
