@@ -55,10 +55,6 @@ export default function Dashboard() {
     }
   }, [session]);
 
-  // Stat di kartu ringkasan dihitung terpisah dari daftar yang dipaginasi
-  // di bawah, supaya tetap akurat mencerminkan SEMUA link user - bukan cuma
-  // 50 yang sedang ditampilkan. Cuma ambil kolom `clicks` (bukan select *),
-  // jadi tetap ringan walau jumlah link sudah banyak.
   async function fetchStats() {
     const [{ count }, { data: clicksData }] = await Promise.all([
       supabase.from('links').select('id', { count: 'exact', head: true }),
@@ -122,6 +118,22 @@ export default function Dashboard() {
     }
 
     setCreating(true);
+
+    // Cek rate limit dulu sebelum coba insert - lihat migrasi
+    // 009_rate_limiting.sql. Maks 10 link baru per menit per user;
+    // cukup longgar untuk pemakaian normal, tapi mencegah spam script
+    // yang langsung panggil insert berkali-kali.
+    const { data: allowed, error: rateLimitErr } = await supabase.rpc('check_and_log_rate_limit', {
+      p_key: `create_link:${session.user.id}`,
+      p_window_seconds: 60,
+      p_max: 10,
+    });
+    if (rateLimitErr || allowed === false) {
+      setErr('Terlalu banyak tautan dibuat dalam waktu singkat. Coba lagi sebentar lagi.');
+      setCreating(false);
+      return;
+    }
+
     let code = alias.trim();
     let attempts = 0;
     let success = false;
@@ -164,9 +176,6 @@ export default function Dashboard() {
   }
 
   async function handleVisit(link) {
-    // Lewat API server-side (bukan rpc() langsung dari browser) supaya
-    // kepemilikan link diverifikasi dulu sebelum klik dicatat - lihat
-    // pages/api/links/visit.js untuk alasannya.
     const {
       data: { session: currentSession },
     } = await supabase.auth.getSession();
@@ -293,4 +302,4 @@ export default function Dashboard() {
       </div>
     </DashboardLayout>
   );
-                }
+           }
