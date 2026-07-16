@@ -3,6 +3,7 @@ import DashboardLayout from '../../components/DashboardLayout';
 import { fetchTrafficStats, fetchRealtimeStats } from '../../lib/trafficApi';
 import { formatPageLabel } from '../../lib/pathUtils';
 import { useSitesContext } from '../../context/SitesContext';
+import { buildRealtimeCardImage } from '../../lib/shareCardImage';
 
 function toDateStr(d) {
   return d.toISOString().slice(0, 10);
@@ -70,6 +71,7 @@ export default function DashboardHome() {
   const [realtime, setRealtime] = useState(null);
   const [realtimeLoading, setRealtimeLoading] = useState(true);
   const [activePoint, setActivePoint] = useState(null);
+  const [sharing, setSharing] = useState(null); // 'views' | 'users' | null
 
   useEffect(() => {
     if (!selectedSiteId) return;
@@ -120,6 +122,57 @@ export default function DashboardHome() {
       // diamkan saja kalau realtime gagal, data harian tetap tampil
     }
     setRealtimeLoading(false);
+  }
+
+  // kind: 'views' (kartu "Tampilan dari Judul Halaman") atau 'users'
+  // (kartu "Pengguna Aktif dari Judul Halaman"). Data diambil dari state
+  // `realtime` yang sama yang sudah dipakai buat render kartu di layar,
+  // jadi gambar yang dibagikan selalu cocok persis dengan yang lagi
+  // ditampilkan user.
+  async function handleShareRealtime(kind) {
+    setSharing(kind);
+    const isViews = kind === 'views';
+    const sourceRows = (isViews ? realtime?.views_by_page : realtime?.users_by_page) || [];
+    const siteName = sites.find((s) => s.id === selectedSiteId)?.name || '';
+
+    const blob = await buildRealtimeCardImage({
+      title: isViews ? 'Tampilan dari Judul Halaman' : 'Pengguna Aktif dari Judul Halaman',
+      caption: isViews ? 'Tampilan dalam 30 menit terakhir' : 'Pengguna aktif dalam 30 menit terakhir',
+      number: isViews ? (realtime?.total_views ?? 0) : (realtime?.active_users ?? 0),
+      rows: sourceRows.map((p) => ({
+        label: formatPageLabel(p.path),
+        value: isViews ? p.views : p.users,
+      })),
+      siteName,
+    });
+
+    setSharing(null);
+    if (!blob) return;
+
+    const filename = `linkme-realtime-${kind}-${new Date().toISOString().slice(0, 10)}.png`;
+    const file = new File([blob], filename, { type: 'image/png' });
+
+    // Web Share API (dengan dukungan file) - ini yang bikin tombolnya
+    // munculkan menu "Bagikan ke WhatsApp/IG/dll" beneran di HP, bukan
+    // cuma download. Kalau browser tidak dukung (mis. desktop tanpa
+    // dukungan share file), fallback ke download PNG biasa.
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: filename });
+        return;
+      } catch (e) {
+        if (e?.name === 'AbortError') return; // user batal dari share sheet, tidak perlu fallback
+      }
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   const chart = trend?.daily?.length
@@ -321,7 +374,12 @@ export default function DashboardHome() {
 
           <div className="two-col">
             <div className="card realtime-card">
-              <div className="realtime-header"><span className="realtime-dot" />Real-Time</div>
+              <div className="realtime-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span><span className="realtime-dot" />Real-Time</span>
+                <button className="icon-btn" onClick={() => handleShareRealtime('views')} disabled={sharing === 'views'}>
+                  {sharing === 'views' ? 'Menyiapkan...' : 'Bagikan'}
+                </button>
+              </div>
               <h3 className="realtime-title">Tampilan dari Judul Halaman</h3>
               <p className="realtime-caption">Tampilan dalam 30 menit terakhir</p>
               <div className="realtime-number">{realtimeLoading ? '\u2014' : (realtime?.total_views ?? 0)}</div>
@@ -343,7 +401,12 @@ export default function DashboardHome() {
             </div>
 
             <div className="card realtime-card">
-              <div className="realtime-header"><span className="realtime-dot" />Real-Time</div>
+              <div className="realtime-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span><span className="realtime-dot" />Real-Time</span>
+                <button className="icon-btn" onClick={() => handleShareRealtime('users')} disabled={sharing === 'users'}>
+                  {sharing === 'users' ? 'Menyiapkan...' : 'Bagikan'}
+                </button>
+              </div>
               <h3 className="realtime-title">Pengguna Aktif dari Judul Halaman</h3>
               <p className="realtime-caption">Pengguna aktif dalam 30 menit terakhir</p>
               <div className="realtime-number">{realtimeLoading ? '\u2014' : (realtime?.active_users ?? 0)}</div>
@@ -368,4 +431,4 @@ export default function DashboardHome() {
       )}
     </DashboardLayout>
   );
-        }
+}
