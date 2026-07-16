@@ -2,26 +2,8 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
-
-function genCode(len = 6) {
-  const chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let s = '';
-  for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return s;
-}
-
-function isValidUrl(str) {
-  try {
-    const u = new URL(str);
-    return u.protocol === 'http:' || u.protocol === 'https:';
-  } catch {
-    return false;
-  }
-}
-
-function isValidAlias(str) {
-  return /^[a-zA-Z0-9-_]{2,24}$/.test(str);
-}
+import { genCode, isValidUrl, isValidAlias } from '../../lib/linkValidation';
+import { toCsv, downloadCsv } from '../../lib/csvExport';
 
 function timeAgo(ts) {
   const diff = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
@@ -46,6 +28,7 @@ export default function Dashboard() {
   const [host, setHost] = useState('');
   const [copiedCode, setCopiedCode] = useState('');
   const [stats, setStats] = useState({ total: 0, totalClicks: 0 });
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     setHost(window.location.origin);
@@ -55,6 +38,10 @@ export default function Dashboard() {
     }
   }, [session]);
 
+  // Stat di kartu ringkasan dihitung terpisah dari daftar yang dipaginasi
+  // di bawah, supaya tetap akurat mencerminkan SEMUA link user - bukan cuma
+  // 50 yang sedang ditampilkan. Cuma ambil kolom `clicks` (bukan select *),
+  // jadi tetap ringan walau jumlah link sudah banyak.
   async function fetchStats() {
     const [{ count }, { data: clicksData }] = await Promise.all([
       supabase.from('links').select('id', { count: 'exact', head: true }),
@@ -95,6 +82,36 @@ export default function Dashboard() {
   function refreshAll() {
     fetchFirstPage();
     fetchStats();
+  }
+
+  // Ambil SEMUA link milik user (loop per PAGE_SIZE, bukan cuma yang lagi
+  // ditampilkan di layar - `links` state itu cuma halaman yang sudah
+  // di-"Muat Lebih Banyak"). Dibatasi 20 halaman (~1000 link) supaya kalau
+  // ada akun dengan link sangat banyak, export tetap selesai dalam waktu
+  // wajar alih-alih menggantung.
+  async function handleExport() {
+    setExporting(true);
+    const all = [];
+    let from = 0;
+    const HARD_PAGE_LIMIT = 20;
+    for (let page = 0; page < HARD_PAGE_LIMIT; page++) {
+      const { data, error } = await supabase
+        .from('links')
+        .select('code, url, clicks, created_at')
+        .order('created_at', { ascending: false })
+        .range(from, from + PAGE_SIZE - 1);
+      if (error || !data || data.length === 0) break;
+      all.push(...data);
+      if (data.length < PAGE_SIZE) break;
+      from += PAGE_SIZE;
+    }
+
+    const rows = [
+      ['Kode', 'URL Tujuan', 'Klik', 'Dibuat Pada'],
+      ...all.map((l) => [l.code, l.url, l.clicks, new Date(l.created_at).toLocaleString('id-ID')]),
+    ];
+    downloadCsv(`linkme-tautan-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows));
+    setExporting(false);
   }
 
   async function notify(message) {
@@ -176,6 +193,9 @@ export default function Dashboard() {
   }
 
   async function handleVisit(link) {
+    // Lewat API server-side (bukan rpc() langsung dari browser) supaya
+    // kepemilikan link diverifikasi dulu sebelum klik dicatat - lihat
+    // pages/api/links/visit.js untuk alasannya.
     const {
       data: { session: currentSession },
     } = await supabase.auth.getSession();
@@ -257,7 +277,12 @@ export default function Dashboard() {
       <div className="card">
         <div className="card-header">
           <h2>Semua tautan</h2>
-          <span className="muted">{stats.total} tautan</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span className="muted">{stats.total} tautan</span>
+            <button className="icon-btn" onClick={handleExport} disabled={exporting || stats.total === 0}>
+              {exporting ? 'Menyiapkan...' : 'Export CSV'}
+            </button>
+          </div>
         </div>
 
         {fetching ? (
@@ -302,4 +327,4 @@ export default function Dashboard() {
       </div>
     </DashboardLayout>
   );
-           }
+}
