@@ -6,8 +6,11 @@ import { supabase } from '../../lib/supabaseClient';
 export default function Analytics() {
   const { session } = useAuth();
   const [links, setLinks] = useState([]);
+  const [totalLinks, setTotalLinks] = useState(0);
   const [loading, setLoading] = useState(true);
   const [host, setHost] = useState('');
+
+  const RANK_LIMIT = 50;
 
   useEffect(() => {
     setHost(window.location.origin);
@@ -16,15 +19,20 @@ export default function Analytics() {
 
   async function fetchLinks() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('links')
-      .select('*')
-      .order('clicks', { ascending: false });
+    const [{ data, error }, { count }] = await Promise.all([
+      supabase
+        .from('links')
+        .select('*')
+        .order('clicks', { ascending: false })
+        .limit(RANK_LIMIT),
+      supabase.from('links').select('id', { count: 'exact', head: true }),
+    ]);
     if (!error) setLinks(data || []);
+    setTotalLinks(count || 0);
     setLoading(false);
   }
 
-  const maxClicks = links.length ? Math.max(...links.map((l) => l.clicks), 1) : 1;
+  const maxClicks = links.length ? Math.max(links[0].clicks, 1) : 1;
 
   return (
     <DashboardLayout>
@@ -36,7 +44,13 @@ export default function Analytics() {
       <div className="card">
         <div className="card-header">
           <h2>Peringkat Tautan</h2>
-          <span className="muted">Diurutkan dari klik terbanyak</span>
+          <span className="muted">
+            {loading
+              ? 'Diurutkan dari klik terbanyak'
+              : totalLinks > RANK_LIMIT
+              ? `Top ${RANK_LIMIT} dari ${totalLinks} tautan`
+              : 'Diurutkan dari klik terbanyak'}
+          </span>
         </div>
 
         {loading ? (
@@ -69,4 +83,4 @@ export default function Analytics() {
       </div>
     </DashboardLayout>
   );
-}
+          }
