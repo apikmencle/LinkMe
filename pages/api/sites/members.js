@@ -66,6 +66,20 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Hanya pemilik situs yang bisa mengundang anggota.' });
     }
 
+    // Cek rate limit dulu - lihat migrasi 009_rate_limiting.sql. Maks 10
+    // percobaan undang per menit per user (dihitung dari SEMUA percobaan,
+    // termasuk yang gagal karena email tidak ditemukan/sudah anggota -
+    // supaya endpoint ini juga tidak bisa disalahgunakan untuk enumerasi
+    // email lewat spam request).
+    const { data: allowed, error: rateLimitErr } = await supabaseAdmin.rpc('check_and_log_rate_limit', {
+      p_key: `invite_member:${user.id}`,
+      p_window_seconds: 60,
+      p_max: 10,
+    });
+    if (rateLimitErr || allowed === false) {
+      return res.status(429).json({ error: 'Terlalu banyak percobaan undangan. Coba lagi sebentar lagi.' });
+    }
+
     const normalizedEmail = String(email).trim().toLowerCase();
     if (!normalizedEmail) {
       return res.status(400).json({ error: 'Email wajib diisi.' });
@@ -103,4 +117,4 @@ export default async function handler(req, res) {
 
   res.setHeader('Allow', ['GET', 'POST']);
   return res.status(405).json({ error: 'Method tidak diizinkan.' });
-  }
+      }
